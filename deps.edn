@@ -1,0 +1,48 @@
+{:paths     ["src" "src-c" "zrc" "resources"]
+ :jvm-opts  ^:replace ["-XX:-OmitStackTraceInFastThrow"]
+ :deps {org.clojure/clojure {:mvn/version "1.10.1"}
+        healthsamurai/matcho {:mvn/version "0.3.7"}
+        route-map/route-map {:mvn/version "0.0.7-RC4"}
+        http-kit/http-kit {:mvn/version "2.4.0-alpha3"}
+        ring/ring {:mvn/version "1.7.1"}
+        cheshire/cheshire {:mvn/version "5.8.1"}
+        clj-commons/clj-yaml           {:mvn/version "0.7.0"}
+        com.cognitect/transit-clj      {:mvn/version "0.8.313"}
+        ring/ring-defaults {:mvn/version "0.3.2"}
+        garden/garden {:mvn/version "1.3.10"}
+        zen-lang/zen {:git/url "https://github.com/zen-lang/zen"
+                      :sha "593a18f7f7f780f7024ae5ee2248e50a97d4bcaa"}
+        clj-time     {:mvn/version "0.15.1"}
+        com.atlassian.commonmark/commonmark {:mvn/version "0.15.0"}
+        com.atlassian.commonmark/commonmark-ext-gfm-tables {:mvn/version "0.15.0"}}
+
+ :aliases   {:ui      {:extra-paths ["src-ui" "src-c"]
+                       :extra-deps  {org.clojure/clojurescript   {:mvn/version "1.10.764"}
+                                     re-frame/re-frame                    {:mvn/version "0.12.0"}
+                                     reagent/reagent                     {:mvn/version "0.10.0"}
+                                     reagent-utils/reagent-utils               {:mvn/version "0.3.3"}
+                                     route-map/route-map                   {:mvn/version "0.0.7"}
+                                     thheller/shadow-cljs        {:mvn/version "2.11.4"}
+                                     medley/medley                      {:mvn/version "1.3.0"}}}
+
+             :test    {:extra-paths ["src" "test" "resources" "test-resources" "src-ui" "test-ui" "scr-c" "test-c"]}
+
+             :kaocha  {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0-612"}}
+                       :jvm-opts   ^:replace ["-XX:-OmitStackTraceInFastThrow"]
+                       :main-opts  ["-m" "kaocha.runner" "--config-file" "test.edn"]}
+
+             :nrepl   {:extra-paths ["dev" "target/shadow/dev" "target/stylo/dev"]
+                       :extra-deps  {refactor-nrepl/refactor-nrepl {:mvn/version "2.5.0"}
+                                     nrepl/nrepl                   {:mvn/version "0.7.0"}
+                                     cider/piggieback              {:mvn/version "0.5.0"}
+                                     cider/cider-nrepl             {:mvn/version "0.25.3"}
+                                     re-frisk/re-frisk                      {:mvn/version "1.1.0"}
+                                     binaryage/devtools            {:mvn/version "1.0.0"}}}
+
+             :runner  {:main-opts  ["-m" "test-runner"]
+                       :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner"
+                                                               :sha     "3cb0a9daf1cb746259dc8309b218f9211ad3b33b"}}}
+
+             :build   {:extra-paths ["build"]
+                       :extra-deps  {cambada/cambada {:git/url "https://github.com/HealthSamurai/cambada"
+                                                      :sha     "e44a0bebd039285f3e10f15f5703d6eaf92672c7"}}}}}

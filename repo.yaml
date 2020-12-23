@@ -1,0 +1,13 @@
+apiVersion: ci3.io/v1
+fullName: HealthSamurai/vcv
+kind: Repository
+metadata:
+  name: vcv
+oauthConsumer:
+  token:
+    valueFrom:
+      secretKeyRef:
+        key: token
+        name: github
+type: github
+url: https://github.com/HealthSamurai/vcv.git
