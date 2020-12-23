@@ -1,0 +1,24 @@
+{ns zenbox
+
+ server
+ {:zen/tags #{zen/tag zen/schema}
+  :type zen/map
+  :require #{:port}
+  :keys {:port {:type zen/integer}
+         ;; :ip                 ; Which ip (if has many ips) to bind
+         ;; :thread             ; Http worker thread count
+         ;; :queue-size         ; Max job queued before reject to project self
+         ;; :max-body           ; Max http body: 8m
+         ;; :max-ws             ; Max websocket message size
+         ;; :max-line           ; Max http inital line length
+         ;; :proxy-protocol     ; Proxy protocol e/o #{:disable :enable :optional}
+         ;; :worker-name-prefix ; Worker thread name prefix
+         ;; :worker-pool        ; ExecutorService to use for request-handling (:thread,
+         ;; :worker-name-prefix, :queue-size are ignored if set)
+         ;; :error-logger       ; Arity-2 fn (args: string text, exception) to log errors
+         ;; :warn-logger        ; Arity-2 fn (args: string text, exception) to log warnings
+         ;; :event-logger       ; Arity-1 fn (arg: string event name)
+         ;; :event-names        ; map of HTTP-Kit event names to respective loggable event names"
+         :api {:type zen/any}}}
+
+ }

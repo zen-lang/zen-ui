@@ -1,4 +1,4 @@
-(ns zen-ui.web.formats
+(ns zenbox.web.formats
   (:require [ring.util.codec]
             [ring.middleware.multipart-params :as multi]
             [clojure.edn :as edn]

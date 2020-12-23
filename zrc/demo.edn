@@ -3,16 +3,23 @@
 
  server
  {:zen/tags #{zenbox/server}
-  :port 8080
-  :api api}
+  :port 4445
+  :apis #{api}}
 
  json-rpc-op
  {:zen/tags #{zenbox/op zenbox/json-rpc-op}
   :operation zenbox/json-rpc-op}
 
+ zen-api
+ {:zen/tags #{zenbox/api}
+  "symbols" {:GET {:operation get-symbols}
+             [:ns] {[:name] {:GET {:operation get-symbol}}}}
+  "tags"    {:GET {:operation get-tags}}}
+
  api
  {:zen/tags #{zenbox/api}
-  :routes {"json-rpc" {:POST {:operation json-rpc-op}}}}
+  "json-rpc" {:POST {:operation json-rpc-op}}
+  "zen" {:apis #{zen-api}}}
 
  user
  {:zen/tags #{zen/schema}

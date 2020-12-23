@@ -1,6 +1,5 @@
 (ns zen-ui.core
-  (:require [zen.core :as zen]
-            [zen-ui.web.core :as web]))
+  (:require [zen.core :as zen]))
 
 (defmulti rpc (fn [ctx req] (symbol (:method req))))
 

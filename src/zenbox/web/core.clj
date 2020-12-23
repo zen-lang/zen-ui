@@ -1,18 +1,20 @@
-(ns zen-ui.web.core
+(ns zenbox.web.core
   (:require
    [clojure.string :as str]
    [org.httpkit.server :as http-kit]
    [ring.util.codec :as codec]
-   [zen-ui.web.formats]
+   [zenbox.web.formats]
    [ring.middleware.cookies :as cookies]
    [ring.util.response]
    [ring.util.request]
    [ring.middleware.head]
    [clj-yaml.core]
-   [clojure.walk])
+   [clojure.walk]
+   [zen.core :as zen]
+   [ring.middleware.content-type]
+   [zenbox.web.router])
   (:use [ring.middleware.resource]
         [ring.middleware.file]
-        [ring.middleware.content-type]
         [ring.middleware.not-modified]))
 
 (defn form-decode [s] (clojure.walk/keywordize-keys (ring.util.codec/form-decode s)))
@@ -21,7 +23,7 @@
   (let [params (when qs (form-decode qs))
         params (if (string? params) {(keyword params) nil} params)
         method-override (and (= :post meth) (get headers "x-http-method-override"))
-        body (zen-ui.web.formats/parse-body req)]
+        body (zenbox.web.formats/parse-body req)]
     (cond-> req
       body (merge body)
       method-override (assoc :request-method (keyword (str/lower-case method-override)))
@@ -62,7 +64,7 @@
       (let [req (prepare-request req)
             resp (dispatch req)]
         (-> resp
-            (zen-ui.web.formats/format-response req)
+            (zenbox.web.formats/format-response req)
             (allow req))))))
 
 (defn handle-static [h {meth :request-method uri :uri :as req}]
@@ -82,22 +84,20 @@
     (handle-static h req)))
 
 (defn start
-  "start server with dynamic metadata"
-  [config dispatch]
-  (let [web-config (merge {:port 8080
-                           :worker-name-prefix "w"
-                           :thread 8
-                           :max-body 20971520} config)
-        web-config (update web-config :port (fn [x] (if (string? x) (Integer/parseInt x) x)))
-        handler (-> (mk-handler dispatch)
-                    healthcheck
-                    (cookies/wrap-cookies)
-                    (wrap-static)
-                    (wrap-content-type {:mime-types {nil "text/html"}})
-                    wrap-not-modified)]
-    (println "Starting web server: \n" (clj-yaml.core/generate-string web-config) "\n")
-    (http-kit/run-server handler web-config)))
+  [ctx dispatch-op]
+  (->> (zen/get-tag ctx 'zenbox/server)
+       (map (fn [sym] (zen/get-symbol ctx sym)))
+       (map (fn [srv-def]
+              (let [dispatch (fn [req] (dispatch-op ctx (zenbox.web.router/route ctx srv-def req) req))
+                    handler (-> (mk-handler dispatch)
+                                (wrap-static))
+                    ;; todo add more http-kit configs
+                    srv (http-kit/run-server handler srv-def)]
+                (swap! ctx assoc-in [:zenbox/servers (:zen/name srv-def)] {:server srv :handler handler}))))))
 
 
-(defn stop [server]
-  (server))
+(defn stop [ctx]
+  (doseq [[nm inst] (:zenbox/servers @ctx)]
+    (when-let [srv (:server inst)]
+      (srv)
+      (swap! ctx update :zenbox/servers dissoc nm))))
