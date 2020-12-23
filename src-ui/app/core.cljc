@@ -25,11 +25,12 @@
 (zrf/defview current-page
   [route not-found?]
   [app.layout/layout
-   (if not-found?
-     [:div.not-found (str "Route not found")]
-     (if-let [page (get @pages/pages (:match route))]
-       [page (:params route)]
-       [:div.not-found (str "Page not defined [" (:match route) "]")]))])
+   [:div "Hello"
+    (if not-found?
+      [:div.not-found (str "Route not found")]
+      (if-let [page (get @pages/pages (:match route))]
+        [page (:params route)]
+        [:div.not-found (str "Page not defined [" (:match route) "]")]))]])
 
 (rf/reg-event-fx
  :global/load-user-info

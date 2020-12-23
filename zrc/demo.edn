@@ -1,3 +1,34 @@
 {ns demo
+ import #{zenbox}
+
+ server
+ {:zen/tags #{zenbox/server}
+  :port 8080
+  :api api}
+
+ json-rpc-op
+ {:zen/tags #{zenbox/op zenbox/json-rpc-op}
+  :operation zenbox/json-rpc-op}
+
+ api
+ {:zen/tags #{zenbox/api}
+  :routes {"json-rpc" {:POST {:operation json-rpc-op}}}}
+
+ user
+ {:zen/tags #{zen/schema}
+  :type zen/map
+  :keys {:password {:type zen/string}}}
+
+ get-all-symbols
+ {:zen/tags #{zenbox/rpc}
+  :zen/desc "Get all tags"
+  :params {:type zen/map}}
+
+ zen-validate
+ {:zen/tags #{zenbox/rpc}
+  :zen/desc ""
+  :params {:type zen/map
+           :keys {:schema {:type zen/symbol}
+                  :data   {:type zen/any}}}}
 
  }
