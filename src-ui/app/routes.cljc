@@ -8,7 +8,8 @@
 (def routes {:context :app.core/ctx
              :. :app.dashboard/ctx
              "rpc" {:. :app.rpc/ctx}
-             "symbols" {[:name] {:. :app.symbols/ctx}}})
+             "symbols" {[:name] {:. :app.symbols/ctx}}
+             "rest" {:. :app.rest/ctx}})
 
 
 (defn to-query-params [params]

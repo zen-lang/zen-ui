@@ -19,22 +19,12 @@
     {:zen/rpc {:method (:method req)
                :path [::db :result]}}))
 
-
 (zrf/defx rpc-methods-loaded
   [{db :db} [_ {data :data}]]
-  (let [res (:methods data)]
-    {:db (assoc-in db (zf/schema-path {:zf/root [::db :form] :zf/path [:method]}) {:options res})}))
-
-;; (zrf/defx ctx
-;;   [{db :db} [_ phase {params :params}]]
-;;   (cond
-;;     (= :deinit phase) {}
-
-;;     (or (= :init phase) (= :params phase))
-;;     {:db (-> db
-;;              (assoc-in
-;;               (zf/schema-path {:zf/root [::db :form] :zf/path [:method]})
-;;               {:options ["zen-ui/navigation"]}))}))
+  (let [result (map str (:methods data))]
+    {:db (assoc-in db
+                   (zf/schema-path {:zf/root [::db :form] :zf/path [:method]})
+                   {:options result})}))
 
 (zrf/defx ctx
   [{db :db} [_ phase {params :params}]]
@@ -49,8 +39,8 @@
 (zrf/defsp result [::db :result :data])
 
 (zrf/defview page [model result]
-  [:div {:class (c [:p 8])}
-   [:div {:class (c [:space-y 3] [:w 300] {:margin "0 auto"})}
+  [:div {:class (c [:p 2])}
+   [:div {:class (c [:space-y 3] [:w 200] {:margin "0 auto"})}
     [:h2 "RPC Console"]
     [:div "Method:"]
     [anti.select/zf-select {:placeholder "Method"

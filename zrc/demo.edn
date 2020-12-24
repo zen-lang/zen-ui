@@ -31,6 +31,9 @@
  {:zen/tags #{zenbox/rpc}
   :operation storage/delete-patient}
 
+ read-practitioner
+ {:zen/tags #{zenbox/rpc}
+  :operation storage/read-practitoner}
 
  dashboard
  {:zen/tags #{zenbox/rpc}}

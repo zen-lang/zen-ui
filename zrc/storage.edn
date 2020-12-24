@@ -9,38 +9,62 @@
  storage
  {:zen/tags #{zen/tag}}
 
- inmemory
+ atom-storage
  {:zen/tags #{storage}
   :kind "atom"
   }
 
+ pgstore
+ {:zen/tags #{zen/tags zen/schema}
+  :type zen/map
+  :require #{:kind :user :password :host :port}
+  }
+
  postgres
- {:zen/tags #{storage}
+ {:zen/tag #{storage pgstore}
   :kind "postgres"
   :user "root"
   :password "password"
   :host "db"
   :port 5432}
 
- storage-op
- {:zen/tags #{zen/tag}}
-
  storage-impl
  {:zen/tags #{zen/tag}}
 
- insert-patient
+ operation-impl
+ {:zen/tags #{zen/tag}}
+
+ inmemory
  {:zen/tags #{storage-impl}
-  :persist inmemory
+  :persist atom-storage}
+
+ practitioner-on-disk
+ {:zen/tags #{storage-impl}
+  :table "practitioner"
+  :kind "jsobn"
+  :persist postgers}
+
+ insert-patient
+ {:zen/tags #{operation-impl}
+  :storage inmemory
   :schema fhir/patient
   :operation insert-op}
 
  read-patient
- {:zen/tags #{storage-impl}
-  :persist inmemory
+ {:zen/tags #{operation-impl}
+  :storage inmemory
+  :schema fhir/resource
   :operation read-op}
 
  delete-patient
- {:zen/tags #{storage-impl}
-  :persist inmemory
+ {:zen/tags #{operation-impl}
+  :storage inmemory
+  :schema fhir/resource
   :operation delete-op}
+
+ insert-practitioner
+ {:zen/tags #{operation-impl}
+  :storage practitioner-on-disk
+  :schema fhir/practitioner
+  :operation insert-op}
  }
