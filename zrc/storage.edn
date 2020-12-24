@@ -37,10 +37,12 @@
  read-patient
  {:zen/tags #{storage-impl}
   :persist inmemory
+  :schema fhir/reference
   :operation read-op}
 
  delete-patient
  {:zen/tags #{storage-impl}
   :persist inmemory
+  :schema fhir/reference
   :operation delete-op}
  }

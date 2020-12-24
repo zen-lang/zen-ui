@@ -26,4 +26,43 @@
   (matcho/match
    (zenbox/rpc-call ctx {:method 'demo/read-patient :params sample-valid-patinet})
    {:result nil})
+
+  (matcho/match
+   (zenbox/rpc-call ctx {:method 'demo/insert-patient :params {}})
+   {:error [{:message ":resourceType is required",
+              :type "require",
+              :path [:resourceType],
+              :schema ['fhir/patient :confirms 'fhir/reference :require]}
+             {:message ":id is required",
+              :type "require",
+              :path [:id],
+              :schema ['fhir/patient :confirms 'fhir/reference :require]}]})
+  (matcho/match
+   (zenbox/rpc-call ctx {:method 'demo/read-patient :params {}})
+   {:error [{:message ":resourceType is required",
+              :type "require",
+              :path [:resourceType],
+              :schema ['fhir/reference :require]}
+             {:message ":id is required",
+              :type "require",
+              :path [:id],
+              :schema ['fhir/reference :require]}]
+    })
+  (matcho/match
+   (zenbox/rpc-call ctx {:method 'demo/delete-patient :params sample-valid-patinet})
+   {:error [{:message "resource doesn't exists"}]})
+
+  (matcho/match
+   (zenbox/rpc-call ctx {:method 'demo/delete-patient :params {}})
+   {:error
+    [{:message ":resourceType is required",
+      :type "require",
+      :path [:resourceType],
+      :schema ['fhir/reference :require]}
+     {:message ":id is required",
+      :type "require",
+      :path [:id],
+      :schema ['fhir/reference :require]}]})
+
+
   )

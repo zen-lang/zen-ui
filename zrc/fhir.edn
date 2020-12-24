@@ -1,10 +1,16 @@
 {ns fhir
+ reference
+ {:zen/tags #{zen/schema}
+  :type zen/map
+  :require #{:id :resourceType}
+  :keys {:id {:type zen/string}
+         :resourceType {:type zen/string}}
+  }
  patient
  {:zen/tags #{zen/schema}
   :type zen/map
-  :keys {:id {:type zen/string}
-         :resourceType {:type zen/string}
-         :name {:type zen/vector
+  :confirms #{reference}
+  :keys {:name {:type zen/vector
                 :every {:type zen/map
                         :keys {:family {:type zen/string}
                                :given {:type zen/vector :every {:type zen/string}}}}}
