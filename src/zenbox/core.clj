@@ -135,6 +135,16 @@
 
   (resolve-views ctx #{'zen/schema})
   
+  (operation
+   ctx
+   {:operation 'zenbox/json-rpc}
+   {:resource
+    {:method 'demo/create-pgstore  :params {:zen/name 'click-house
+                                            :kind "postgres"
+                                            :user "superadmin"
+                                            :password "123"
+                                            :host "clickhouse-db"
+                                            :port 5432}}})
 
 
   )
