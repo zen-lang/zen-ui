@@ -31,7 +31,7 @@
  insert-patient
  {:zen/tags #{storage-impl}
   :persist inmemory
-  :schema fhir/patinet
+  :schema fhir/patient
   :operation insert-op}
 
  read-patient

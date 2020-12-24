@@ -4,13 +4,15 @@
 
 (defonce storage (atom {}))
 
-
-(defmulti inmemory (fn [ctx op params] op))
-
+(defmulti inmemory (fn [ctx op params] (:operation op)))
+ 
 (defmethod inmemory 'storage/insert-op
   [ctx op params]
-  (swap! storage assoc-in [(:resourceType params) (:id params)] params)
-  params)
+  (let [{:keys [errors]} (zen/validate ctx [(:schema op)] params)]
+    (if (not= errors [])
+      errors
+      (do (swap! storage assoc-in [(:resourceType params) (:id params)] params)
+          params))))
 
 (defmethod inmemory 'storage/delete-op
   [ctx op params]
@@ -24,7 +26,7 @@
 (defn handle [ctx req]
   (let [params (:params req)
         rpc-config (zen/get-symbol ctx (symbol (:method req)))
-        {:keys[persist operation] :as rest} (zen/get-symbol ctx (:operation rpc-config))]
+        {:keys[persist] :as operation} (zen/get-symbol ctx (:operation rpc-config))]
     (if (= persist 'storage/inmemory)
       (inmemory ctx operation params)
       {:error "not implemented"})))
