@@ -10,16 +10,66 @@
   :password "postgres"
   :database "mybox"}
 
+
  server
  {:zen/tags #{zenbox/server}
   :port 4445
   :services #{db}
+  :after-start [ensure-stores]
   :apis #{api}}
 
  index-op
  {:zen/tags #{zenbox/op}
   :operation zenbox/response
   :response {:status 302 :headers {"location" "static/index.html"}}}
+
+
+ ensure-stores
+ {:zen/tags #{zenbox/rpc}
+  :operation zenbox/ensure-stores
+  :dbs #{db}}
+
+ sql-op
+ {:zen/tags #{zenbox/rpc}
+  :operation zenbox/sql
+  :db db}
+
+
+ user
+ {:zen/tags #{zen/schema}
+  :type zen/map
+  :keys {:name {:type zen/string}
+         :email {:type zen/string}}}
+
+ new-user
+ {:zen/tags #{zen/schema}
+  :type zen/map
+  :require #{:email}}
+
+ user-store
+ {:zen/tags #{zenbox/store}
+  :engine zenbox/jsonb-store
+  :db db
+  :table-name "users"
+  :schemas #{user}
+  :indices {}}
+
+ create-user
+ {:zen/tags #{zenbox/rpc}
+  :operation zenbox/create-rpc
+  :storage user-store
+  :schemas #{new-user}}
+
+ read-user
+ {:zen/tags #{zenbox/rpc}
+  :operation zenbox/read-rpc
+  :storage user-store}
+
+ search-user
+ {:zen/tags #{zenbox/rpc}
+  :operation zenbox/sql-search-rpc
+  :storage user-store
+  :params {:name {:template "resource->>'name' ilike {{param}}"}}}
 
  ;; instance of zenbox/json-rpc
  json-rpc-op
