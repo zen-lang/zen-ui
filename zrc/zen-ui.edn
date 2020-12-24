@@ -10,6 +10,9 @@
   :params {:type zen/map
            :keys {:name {:type zen/symbol}}}}
 
+ rpc-methods
+ {:zen/tags #{zenbox/rpc}
+  :zen/desc "Return all rpc methods"}
 
  page-engine {:zen/tags #{zen/tag}
               :zen/desc "Register page engine"}

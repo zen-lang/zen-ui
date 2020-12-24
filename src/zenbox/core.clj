@@ -54,6 +54,10 @@
   [ctx req]
   {:result (storage/handle ctx req)})
 
+(defmethod rpc-call 'zen-ui/rpc-methods
+  [ctx req]
+  {:result {:methods (zen/get-tag ctx 'zenbox/rpc)}})
+
 (defn dispatch-op [ctx route request]
   (if route
     (if-let [op (zen/get-symbol ctx (get-in route [:match :operation]))]
