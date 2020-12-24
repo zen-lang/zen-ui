@@ -81,18 +81,33 @@
               :else nil;; (api-iter v (conj k path))
               )) api))
 
-(defn server-iter [ctx servers path result]
-  (if (empty? servers)
-    result
-    (mapcat
-     (fn [server-symbol]
-       (let [server (zen/get-symbol ctx server-symbol)
-             server-apis (->> (:apis server)
-                              (mapv #(zen/get-symbol ctx %))
-                              (mapv #(dissoc % :zen/name :zen/tags :zen/file)))]
-         (map (fn [api] (api-iter api path)) server-apis)))
-            servers)))
+(defn apis-paths [ctx api path acc]
+  (let [acc (if-let [apis (api :apis)]
+              (->> apis
+                   (mapv (fn [srv-nm] (zen/get-symbol ctx srv-nm)))
+                   (reduce (fn [acc next-api]
+                             (apis-paths ctx next-api path acc)
+                             ) acc))
+              acc)]
+    (->> api
+         (reduce (fn [acc [k v]]
+                   (cond
+                     (contains? #{:GET :POST :PUT :PATCH :OPTION :DELETE} k)
+                     (conj acc (merge v {:method k :uri (str "/" (str/join "/" path))}))
+
+                     (string? k)
+                     (apis-paths ctx v (conj path k) acc)
+
+                     (and (vector? k) (keyword? (first k)))
+                     (apis-paths ctx v (conj path (str "{" (subs (str (first k)) 1) "}")) acc)
+
+                     :else acc))
+                 acc))))
 
 (defn get-all-paths [ctx]
-  (let [servers (zen/get-tag ctx 'zenbox/server)]
-    (server-iter ctx servers ["/"] [])))
+  (->> (zen/get-tag ctx 'zenbox/server)
+       (mapv (fn [srv-nm] (zen/get-symbol ctx srv-nm)))
+       (reduce (fn [acc srv]
+                 (apis-paths ctx (select-keys srv [:apis]) [] acc))
+               [])
+       (sort-by (fn [x] [(:uri x) (:method x)]))))
