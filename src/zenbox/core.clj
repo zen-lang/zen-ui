@@ -15,6 +15,10 @@
       {:status 200 :body resp}
       {:status 422 :body resp})))
 
+(defmethod operation 'zenbox/response
+  [ctx op req]
+  (:response op))
+
 (defmethod rpc-call 'demo/dashboard
   [ctx req]
   {:result {:message "Dashboard"}})

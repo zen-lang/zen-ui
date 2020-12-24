@@ -8,7 +8,9 @@
 
  index-op
  {:zen/tags #{zenbox/op}
-  :operation zenbox/json-rpc-op}
+  :operation zenbox/response
+  :response {:status 302
+             :headers {"location" "static/index.html"}}}
 
 
  ;; instance of zenbox/json-rpc
