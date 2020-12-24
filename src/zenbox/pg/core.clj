@@ -1,5 +1,6 @@
 (ns zenbox.pg.core
   (:require
+   [zen.core :as zen]
    [zenbox.services :as srv]
    [zenbox.pg.pool :as pool]
    [ring.util.codec]
@@ -26,7 +27,7 @@
            (str "&" (->> params (mapv (fn [[k v]] (str (name k) "=" v)))
                  (str/join "&")))))))
 
-(defn datasource [{pool-spec :pool :as  spec}]
+(defn datasource [spec]
   (let [ds-opts   (let [database-url (database-url spec)]
                     (merge {:connection-timeout  30000
                             :idle-timeout        10000
@@ -34,7 +35,7 @@
                             :maximum-pool-size   30
                             :connection-init-sql "select 1"
                             :data-source.url     database-url}
-                           pool-spec))
+                           (select-keys spec [:connection-timeout :idle-timeout :minimum-idle :maximum-pool-size :connection-init-sql])))
         ds (pool/create-pool ds-opts)]
     {:datasource ds}))
 
@@ -158,16 +159,27 @@
 
 (defmethod srv/start 'zenbox/pg
   [ctx inst]
-  (println "STart pg" inst)
-
-  )
+  (println "Starting pg" inst)
+  (let [ds (datasource inst)]
+    (swap! ctx assoc-in [:services (:zen/name inst)] ds)))
 
 (defmethod srv/stop 'zenbox/pg
   [ctx inst]
-  (println "Stop pg" inst)
-  )
+  (when-let [conn (get-in @ctx [:services (:zen/name inst)])]
+    (println "Stop pg" inst conn)
+    (shutdown conn)
+    (swap! ctx assoc-in [:services (:zen/name inst)] nil)))
 
 (comment
+  (def ctx (zen/new-context))
+
+  (zen/read-ns ctx 'demo)
+
+  (def pg (zen/get-symbol ctx 'demo/db))
+
+
+  (srv/start ctx pg)
+  (srv/stop ctx pg)
 
 
 
