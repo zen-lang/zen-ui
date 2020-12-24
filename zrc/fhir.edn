@@ -1,5 +1,5 @@
 {ns fhir
- reference
+ resource
  {:zen/tags #{zen/schema}
   :type zen/map
   :require #{:id :resourceType}
@@ -8,8 +8,17 @@
   }
  patient
  {:zen/tags #{zen/schema}
+  :confirms #{resource}
   :type zen/map
-  :confirms #{reference}
+  :keys {:name {:type zen/vector
+                :every {:type zen/map
+                        :keys {:family {:type zen/string}
+                               :given {:type zen/vector :every {:type zen/string}}}}}
+         :birthDate {:type zen/datetime}}}
+ practitioner
+ {:zen/tags #{zen/schema}
+  :confirms #{resource}
+  :type zen/map
   :keys {:name {:type zen/vector
                 :every {:type zen/map
                         :keys {:family {:type zen/string}

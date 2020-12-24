@@ -35,8 +35,11 @@
 (defn handle [ctx req]
   (let [params (:params req)
         rpc-config (zen/get-symbol ctx (symbol (:method req)))
-        {:keys[persist] :as operation} (zen/get-symbol ctx (:operation rpc-config))]
-    (if (= persist 'storage/inmemory)
+        {:keys[storage] :as operation} (zen/get-symbol ctx (:operation rpc-config))
+        {:keys [persist]} (zen/get-symbol ctx storage)
+        {:keys [kind]} (zen/get-symbol ctx persist)
+        ]
+    (if (= kind "atom")
       (inmemory ctx operation params)
       {:error "not implemented"})))
 
