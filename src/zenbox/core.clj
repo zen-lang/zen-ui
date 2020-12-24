@@ -3,19 +3,33 @@
    [zenbox.web.core :as web]
    [zen.core :as zen]))
 
-(defmulti rest-op (fn [ctx op req] (:operation (:match op))))
+(defmulti operation (fn [ctx op req] (:operation op)))
+(defmulti rpc-call (fn [ctx req] (symbol (:method req))))
 
-(defmethod rest-op 'demo/rpc
+(defmethod operation 'zenbox/json-rpc
   [ctx op req]
-  )
+  (let [resp (rpc-call ctx (:resource req))]
+    (if (:result resp)
+      {:status 200 :body resp}
+      {:status 422 :body resp})))
 
-(defn dispatch-op [ctx op request]
-  (if op 
-    (rest-op ctx op request)
+(defmethod rpc-call 'demo/dashboard
+  [ctx req]
+  {:result {:message "Dashboard"}})
+
+(defmethod rpc-call 'demo/all-tags
+  [ctx req]
+  {:result (:tags @ctx)})
+
+(defn dispatch-op [ctx route request]
+  (if route
+    (if-let [op (zen/get-symbol ctx (get-in route [:match :operation]))]
+      (operation ctx op request)
+      {:status 404})
     {:status 404}))
 
 (defn start [ctx]
-  (web/start ctx dispatch-op))
+  (web/start ctx #'dispatch-op))
 
 (defn stop [ctx]
   (web/stop ctx))

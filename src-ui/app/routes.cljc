@@ -5,16 +5,7 @@
 
 (def global-contexts {})
 
-(def routes {:. :app.dashboard/ctx
-             "anti"          {:. :app.anti/index}
-             "reagent"  {:. :app.reagent/ctx}
-             "reframe" {:. :app.reframe/ctx}
-             "patients" {:. :app.patients.core/ctx
-                         "new" {:. :app.patients.form/ctx}
-                         [:user-id] {:. :app.patients.form/ctx}}
-             "users" {:. :app.users.core/index
-                      "new" {:. :app.users.form/index}
-                      [:user-id] {:. :app.users.form/index}}})
+(def routes {:. :app.dashboard/ctx})
 
 
 (defn to-query-params [params]

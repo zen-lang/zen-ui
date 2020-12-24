@@ -6,9 +6,28 @@
   :port 4445
   :apis #{api}}
 
- json-rpc-op
- {:zen/tags #{zenbox/op zenbox/json-rpc-op}
+ index-op
+ {:zen/tags #{zenbox/op}
   :operation zenbox/json-rpc-op}
+
+
+ ;; instance of zenbox/json-rpc
+ json-rpc-op
+ {:zen/tags #{zenbox/op}
+  ;; configuration
+  :operation zenbox/json-rpc}
+
+ dashboard
+ {:zen/tags #{zenbox/rpc}}
+
+ all-tags
+ {:zen/tags #{zenbox/rpc}}
+
+ api
+ {:zen/tags #{zenbox/api}
+  :GET {:operation index-op}
+  "json-rpc" {:POST {:operation json-rpc-op}}
+  "zen" {:apis #{zen-api}}}
 
  zen-api
  {:zen/tags #{zenbox/api}
@@ -16,15 +35,33 @@
              [:ns] {[:name] {:GET {:operation get-symbol}}}}
   "tags"    {:GET {:operation get-tags}}}
 
- api
- {:zen/tags #{zenbox/api}
-  "json-rpc" {:POST {:operation json-rpc-op}}
-  "zen" {:apis #{zen-api}}}
 
- user
+
+ patient
  {:zen/tags #{zen/schema}
   :type zen/map
-  :keys {:password {:type zen/string}}}
+  :keys {:name {:type zen/vector
+                :every {:type zen/map
+                        :keys {:family {:type zen/string}
+                               :given {:type zen/vector :every {:type zen/string}}}}}
+         :birthDate {:type zen/datetime}}}
+
+ pt-store
+ {:zen/tags #{zenbox/inmemory}
+  :table_name "Patient"}
+
+ pt-create
+ {:zen/tags #{zenbox/rpc}
+  :operation zenbox/create
+  :store pt-store
+  :schema patient}
+
+ pt-create-rest
+ {:zen/tags #{zenbox/op}
+  :operation zenbox/rpc2rest
+  :rpc pt-create
+  :request [[:body] []]
+  :response [[:result] [:body]]}
 
  get-all-symbols
  {:zen/tags #{zenbox/rpc}
