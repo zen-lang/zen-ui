@@ -5,8 +5,10 @@
 
 (def global-contexts {})
 
-(def routes {:. :app.dashboard/ctx
-             "rpc" {:. :app.rpc/ctx}})
+(def routes {:context :app.core/ctx
+             :. :app.dashboard/ctx
+             "rpc" {:. :app.rpc/ctx}
+             "symbols" {[:name] {:. :app.symbols/ctx}}})
 
 
 (defn to-query-params [params]

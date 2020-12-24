@@ -5,6 +5,7 @@
 (defonce debounce-state (atom {}))
 
 (defn *rpc-fetch [{:keys [path debounce force success error] :as opts}]
+  (println "RPC:" (:method opts) (:params opts))
   #?(:cljs
     (if (and debounce path (not force))
       (do

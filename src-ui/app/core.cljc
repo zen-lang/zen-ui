@@ -18,21 +18,34 @@
             [app.anti]
             [app.dashboard]
             [app.rpc]
+            [app.symbols]
             #?(:cljs [app.reagent])
             [app.reframe]))
 
+
 (zrf/defview current-page
   [route not-found?]
-  [:div (if not-found?
-          [:div.not-found (str "Route not found")]
-          (if-let [page (get @pages/pages (:match route))]
-            [page (:params route)]
-            [:div.not-found (str "Page not defined [" (:match route) "]")]))])
+  [app.layout/layout
+   [:div (if not-found?
+           [:div.not-found (str "Route not found")]
+           (if-let [page (get @pages/pages (:match route))]
+             [page (:params route)]
+             [:div.not-found (str "Page not defined [" (:match route) "]")]))]])
 
 
 (zrf/defx initialize
   [fx _]
   (println "INIT"))
+
+(zrf/defx ctx
+  [{db :db} [_ phase {params :params}]]
+  (println "CTX nav:")
+  (cond
+    (= :deinit phase) {}
+
+    (or (= :init phase) (= :params phase))
+    {:zen/rpc {:method 'zen-ui/navigation
+               :path [:navigation]}}))
 
 (defn mount-root []
   (rf/clear-subscription-cache!)

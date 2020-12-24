@@ -22,6 +22,10 @@
   [ctx req]
   {:result (:tags @ctx)})
 
+(defmethod rpc-call 'zen-ui/get-symbol
+  [ctx {{nm :name} :params}]
+  {:result (zen/get-symbol ctx (symbol nm))})
+
 (defmethod rpc-call 'zen-ui/navigation
   [ctx req]
   (let [symbols (->>

@@ -5,6 +5,12 @@
  {:zen/tags #{zenbox/rpc}
   :zen/desc "Return navigation for zen models"}
 
+ get-symbol
+ {:zen/tags #{zenbox/rpc}
+  :params {:type zen/map
+           :keys {:name {:type zen/symbol}}}}
+
+
  page-engine {:zen/tags #{zen/tag}
               :zen/desc "Register page engine"}
 

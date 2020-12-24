@@ -10,9 +10,9 @@
   [{:href  "#/"
     :icon  "fa-tachometer"
     :title "Dashbrd"}
-   {:href  "#/users"
-    :icon  "fa-user"
-    :title "Users"}])
+   {:href  "#/rpc"
+    :icon  "fa-terminal"
+    :title "RPC"}])
 
 (zrf/defx logout [_ _]
   {:cookie/remove "asid"
@@ -89,8 +89,61 @@
       :title    "Logout"}]]])
 
 
+(zrf/defsp nav-model [:navigation :data])
+
+(defn url [pth & [ext]]
+  (str "#/" (str/join "/" pth) (when ext (str "." (name ext)))))
+
+(defn symbol-url [sym]
+  (url ["symbols" (str/replace sym #"/" ":")]))
+
+(defn symbol-icon [v]
+  (let [tgs (into #{} (:tags v))]
+    [:div {:class
+           (str/join " "
+                     (mapv name
+                           [(c [:w 3] [:h 3] [:mr 1]
+                               {:border-radius "100%" :font-size "9px" :text-align "center" :line-height "0.75rem"})
+                            (cond
+                              (contains? tgs "zen/type")     (c  [:bg :green-400])
+                              (contains? tgs "zen/tag")      (c  [:bg :orange-300])
+                              (contains? tgs "zen/property") (c  [:bg :blue-300])
+                              (contains? tgs "zen/valueset") (c  [:bg :pink-300])
+                              (contains? tgs "zen/schema")   (c  [:bg :green-300])
+                              :else                         (c :border [:bg :gray-300]))]))
+           :title (str/join " " tgs)}
+     (cond
+         (contains? tgs "zen/tag") "#"
+         (contains? tgs "zen/type")  "T"
+         (contains? tgs "zen/valueset")  "V"
+         (contains? tgs "zen/schema") "S")]))
+
+(defn render-tree [syms]
+  [:div {:class (c [:pl 2])}
+   (for [[k v] (sort-by first syms)]
+     [:div {:key k}
+      [:a {:href (when-let [nm (:name v)] (symbol-url nm))
+             :class (c :block :flex :items-baseline :align-baseline [:py 0.25] [:text :gray-700]
+                       [:hover [:text :gray-900]])}
+       (when-let [tgs (:tags v)]
+         (symbol-icon v))
+       [:div (subs (str k) 1)]]
+      (when-let [ch (and (:children v))]
+        [:div {:class (c )}
+         (render-tree ch)])])])
+
+(zrf/defview navigation [nav-model]
+  [:div {:class (c {})}
+   (render-tree nav-model)])
+
 (defn layout [content]
   [:div {:class (c :flex :items-stretch :h-screen)}
    [:style "body {padding: 0; margin: 0;}"]
    [quick-menu]
-   [:div {:class (c :flex-1 :overflow-y-auto)} content]])
+   [:div {:class (c :flex-1 :flex :overflow-y-auto)}
+    [:div {:class (c [:px 4] [:py 2] [:w 80] [:w-min 80]
+                     :text-sm [:text :gray-700] [:bg :gray-100]
+                     :overflow-y-auto)}
+     [:div {:class (c [:pl 2])}
+      [navigation]]]
+    [:div content]]])
