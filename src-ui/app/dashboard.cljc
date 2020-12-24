@@ -11,7 +11,7 @@
     (= :deinit phase) {}
 
     (or (= :init phase) (= :params phase))
-    {:zen/rpc {:method 'demo/all-tags
+    {:zen/rpc {:method 'zen-ui/navigation
                :path [::model]}}))
 
 (zrf/defs model [db _]

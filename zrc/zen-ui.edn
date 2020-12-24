@@ -1,0 +1,62 @@
+{ns zen-ui
+ import #{zenbox}
+
+ navigation
+ {:zen/tags #{zenbox/rpc}
+  :zen/desc "Return navigation for zen models"}
+
+ page-engine {:zen/tags #{zen/tag}
+              :zen/desc "Register page engine"}
+
+ tag-view {:zen/tags #{zen/tag zen/schema}
+           :zen/desc "Register view for specific tag"
+           :type zen/map
+           :require #{:tag :title :slag}
+           :keys {:tag   {:type zen/symbol :tags #{zen/tag}}
+                  :width {:type zen/integer}
+                  :slag  {:type zen/string}
+                  :title {:type zen/string}}}
+
+ view-for-schema
+ {:zen/tags #{tag-view}
+  :tag zen/schema
+  :width 0
+  :slag "schema"
+  :title "Schema"}
+
+ view-for-valueset
+ {:zen/tags #{tag-view}
+  :tag zen/valueset
+  :width 0
+  :slag "valueset"
+  :title "Valueset"}
+
+ view-for-tag
+ {:zen/tags #{tag-view}
+  :tag zen/tag
+  :width 0
+  :slag "tag"
+  :title "Tag"}
+
+ md {:zen/tags #{page-engine zen/schema}
+     :type zen/map
+     :keys {:file {:type zen/string}}}
+
+ html {:zen/tags #{page-engine zen/schema}
+       :type zen/map
+       :keys {:file {:type zen/string}}}
+
+ page {:zen/tags #{zen/tag zen/schema}
+       :type zen/map
+       :schema-key {:key :type}
+       :keys {:type {:type zen/symbol :tags #{page-engine}}}}
+
+ site {:zen/tags #{zen/tag zen/schema}
+       :zen/docs "Register site entrypoint"
+       :type zen/map
+       :keys {:title {:type zen/string}
+              :url   {:type zen/string}
+              :views {:type zen/set :values {:type zen/symbol}}
+              :top-menu {:type zen/vector :every {:type zen/any}}}}
+
+ }

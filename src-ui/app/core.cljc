@@ -17,6 +17,7 @@
             [app.pages :as pages]
             [app.anti]
             [app.dashboard]
+            [app.rpc]
             #?(:cljs [app.reagent])
             [app.reframe]))
 

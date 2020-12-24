@@ -39,6 +39,13 @@
        `(do (def ~query-id ~k)
             (defn ~fn-name ~@fn-def)
             (rf/reg-sub ~k ~@sigs ~fn-name)))))
+
+#?(:clj
+   (defmacro defsp
+     [query-id pth]
+     `(defs ~query-id [db# _#]
+        (get-in db# ~pth))))
+
 #?(:clj
    (defmacro defx
      [fx-id & fn-def]

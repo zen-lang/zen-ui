@@ -39,7 +39,6 @@
 ;;  [:param] {:GET {:op :x}}}
 
 (defn -match [ctx acc node [x & rpth :as pth] params parents wgt]
-  (println "node" node)
   (if (nil? node)
     acc
     (if (empty? pth)
@@ -66,13 +65,12 @@
 (defn match
   "path [:get \"/your/path\"] or just \"/your/path\""
   [ctx meth uri routes]
-  (println "match" meth uri)
   (let [path (conj (pathify uri) (-> meth name str/upper-case keyword))
         result (-match ctx  [] routes path {} [] 0)]
     (->> result (sort-by :w) last)))
 
 (defn route [ctx server request]
-  (println "Route for" server " req: " (select-keys request [:uri :request-method]))
+  ;; (println "Route for" server " req: " (select-keys request [:uri :request-method]))
   (match ctx (:request-method request) (:uri request) (select-keys server [:apis])))
 
 

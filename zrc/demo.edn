@@ -1,5 +1,5 @@
 {ns demo
- import #{zenbox}
+ import #{zenbox zen-ui}
 
  server
  {:zen/tags #{zenbox/server}

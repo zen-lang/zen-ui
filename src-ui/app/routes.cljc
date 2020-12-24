@@ -5,7 +5,8 @@
 
 (def global-contexts {})
 
-(def routes {:. :app.dashboard/ctx})
+(def routes {:. :app.dashboard/ctx
+             "rpc" {:. :app.rpc/ctx}})
 
 
 (defn to-query-params [params]

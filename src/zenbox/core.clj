@@ -1,7 +1,8 @@
 (ns zenbox.core
   (:require
    [zenbox.web.core :as web]
-   [zen.core :as zen]))
+   [zen.core :as zen]
+   [clojure.string :as str]))
 
 (defmulti operation (fn [ctx op req] (:operation op)))
 (defmulti rpc-call (fn [ctx req] (symbol (:method req))))
@@ -20,6 +21,17 @@
 (defmethod rpc-call 'demo/all-tags
   [ctx req]
   {:result (:tags @ctx)})
+
+(defmethod rpc-call 'zen-ui/navigation
+  [ctx req]
+  (let [symbols (->>
+                 (:symbols @ctx)
+                 (sort-by first)
+                 (reduce (fn [acc [nm data]]
+                           (let [pth (interpose :children (str/split (str nm) #"[./]"))]
+                             (assoc-in acc pth {:name nm :path pth :tags (:zen/tags data) :desc (:zen/desc data)})))
+                         {}))]
+    {:result symbols}))
 
 (defn dispatch-op [ctx route request]
   (if route
