@@ -19,6 +19,7 @@
             [app.dashboard]
             [app.rpc]
             [app.symbols]
+            [app.rest]
             #?(:cljs [app.reagent])
             [app.reframe]))
 

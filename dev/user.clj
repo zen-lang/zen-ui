@@ -39,11 +39,14 @@
 
 
   (def ctx (zen/new-context))
+
   (zen/read-ns ctx 'demo)
 
   (zenbox/start ctx)
+
   (zenbox/stop ctx)
 
   (restart-ui)
+
   )
 

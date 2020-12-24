@@ -12,7 +12,10 @@
     :title "Dashbrd"}
    {:href  "#/rpc"
     :icon  "fa-terminal"
-    :title "RPC"}])
+    :title "RPC"}
+   {:href "#/rest"
+    :icon "fa-terminal"
+    :title "REST"}])
 
 (zrf/defx logout [_ _]
   {:cookie/remove "asid"
