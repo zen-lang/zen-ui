@@ -14,6 +14,10 @@
  {:zen/tags #{zenbox/rpc}
   :zen/desc "Return all rpc methods"}
 
+ endpoints
+ {:zen/tags #{zenbox/rpc}
+  :zen/desc "Return all endpoints"}
+
  page-engine {:zen/tags #{zen/tag}
               :zen/desc "Register page engine"}
 

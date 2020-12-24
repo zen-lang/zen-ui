@@ -70,7 +70,29 @@
     (->> result (sort-by :w) last)))
 
 (defn route [ctx server request]
-  ;; (println "Route for" server " req: " (select-keys request [:uri :request-method]))
   (match ctx (:request-method request) (:uri request) (select-keys server [:apis])))
 
+(defn api-iter [api path]
+  (mapv (fn [[k v]]
+                         (println "KV1: " k v)
+            (cond
+              (keyword? k) {:path path :method k}
+              (contains? v :apis) (println "AA: " (:apis v))
+              :else nil;; (api-iter v (conj k path))
+              )) api))
 
+(defn server-iter [ctx servers path result]
+  (if (empty? servers)
+    result
+    (mapcat
+     (fn [server-symbol]
+       (let [server (zen/get-symbol ctx server-symbol)
+             server-apis (->> (:apis server)
+                              (mapv #(zen/get-symbol ctx %))
+                              (mapv #(dissoc % :zen/name :zen/tags :zen/file)))]
+         (map (fn [api] (api-iter api path)) server-apis)))
+            servers)))
+
+(defn get-all-paths [ctx]
+  (let [servers (zen/get-tag ctx 'zenbox/server)]
+    (server-iter ctx servers ["/"] [])))

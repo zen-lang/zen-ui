@@ -12,14 +12,19 @@
 
 (zrf/defx ctx
   [{db :db} [_ phase {params :params}]]
-  )
+  (cond
+    (= :deinit phase) {}
+
+    (or (= :init phase) (= :params phase))
+    {:zen/rpc {:method 'zen-ui/endpoints
+               :path [::db :endpoints]}}))
 
 
 (zrf/defview page []
   [:div {:class (c [:p 2])}
    [:div {:class (c [:space-y 3] [:w 200] {:margin "0 auto"})}
     [:h2 "REST Console"]
-
+    [:div "Method"]
     ]])
 
 (pages/reg-page ctx page)
