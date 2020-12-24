@@ -1,0 +1,49 @@
+{ns storage
+ import #{fhir}
+
+ storage-schema
+ {:zen/tags #{zen/schema}
+  :type zen/map
+  :keys {:kind {:type zen/string}}}
+
+ storage
+ {:zen/tags #{zen/tag}}
+
+ inmemory
+ {:zen/tags #{storage}
+  :kind "atom"
+  }
+
+ postgres
+ {:zen/tags #{storage}
+  :kind "postgres"
+  :user "root"
+  :password "password"
+  :host "db"
+  :port 5432}
+
+ storage-op
+ {:zen/tags #{zen/tag}}
+
+ insert-op
+ {:zen/tags #{storage-op}
+  :operation "insert"}
+ 
+ delete-op
+ {:zen/tags #{storage-op}
+  :operation "delete"}
+
+ storage-impl
+ {:zen/tags #{zen/tag}}
+
+ insert-patient
+ {:zen/tags #{storage-impl}
+  :persist inmemory
+  :schema fhir/patinet
+  :operations insert-op}
+
+ delete-patient
+ {:zen/tags #{storage-impl}
+  :persist inmemory
+  :operations delete-op}
+ }

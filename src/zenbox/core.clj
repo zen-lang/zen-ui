@@ -2,6 +2,7 @@
   (:require
    [zenbox.web.core :as web]
    [zen.core :as zen]
+   [zenbox.storage :as storage]
    [clojure.string :as str]))
 
 (defmulti operation (fn [ctx op req] (:operation op)))
@@ -36,6 +37,14 @@
                              (assoc-in acc pth {:name nm :path pth :tags (:zen/tags data) :desc (:zen/desc data)})))
                          {}))]
     {:result symbols}))
+
+(defmethod rpc-call 'demo/insert-patient
+  [ctx req]
+  {:result (storage/insert ctx req)})
+
+(defmethod rpc-call 'demo/delete-patient
+  [ctx req]
+  {:result (storage/delete ctx req)})
 
 (defn dispatch-op [ctx route request]
   (if route

@@ -1,5 +1,5 @@
 {ns demo
- import #{zenbox zen-ui}
+ import #{zenbox zen-ui fhir storage}
 
  server
  {:zen/tags #{zenbox/server}
@@ -16,6 +16,15 @@
  {:zen/tags #{zenbox/op}
   ;; configuration
   :operation zenbox/json-rpc}
+
+ insert-patient
+ {:zen/tags #{zenbox/rpc}
+  :operation storage/insert-patient}
+
+ delete-patient
+ {:zen/tags #{zenbox/rpc}
+  :operation storage/delete-patient}
+
 
  dashboard
  {:zen/tags #{zenbox/rpc}}
@@ -34,34 +43,6 @@
   "symbols" {:GET {:operation get-symbols}
              [:ns] {[:name] {:GET {:operation get-symbol}}}}
   "tags"    {:GET {:operation get-tags}}}
-
-
-
- patient
- {:zen/tags #{zen/schema}
-  :type zen/map
-  :keys {:name {:type zen/vector
-                :every {:type zen/map
-                        :keys {:family {:type zen/string}
-                               :given {:type zen/vector :every {:type zen/string}}}}}
-         :birthDate {:type zen/datetime}}}
-
- pt-store
- {:zen/tags #{zenbox/inmemory}
-  :table_name "Patient"}
-
- pt-create
- {:zen/tags #{zenbox/rpc}
-  :operation zenbox/create
-  :store pt-store
-  :schema patient}
-
- pt-create-rest
- {:zen/tags #{zenbox/op}
-  :operation zenbox/rpc2rest
-  :rpc pt-create
-  :request [[:body] []]
-  :response [[:result] [:body]]}
 
  get-all-symbols
  {:zen/tags #{zenbox/rpc}
