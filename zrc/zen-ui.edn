@@ -26,6 +26,7 @@
                   :slag  {:type zen/string}
                   :title {:type zen/string}}}
 
+
  view-for-schema
  {:zen/tags #{tag-view}
   :tag zen/schema
@@ -46,6 +47,12 @@
   :width 0
   :slag "tag"
   :title "Tag"}
+
+ view-for-edn
+ {:zen/tags #{tag-view}
+  :width -1
+  :slag "edn"
+  :title "Edn"}
 
  md {:zen/tags #{page-engine zen/schema}
      :type zen/map

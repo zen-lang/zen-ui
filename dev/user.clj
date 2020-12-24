@@ -37,7 +37,6 @@
 (comment
 
 
-
   (def ctx (zen/new-context))
 
   (zen/read-ns ctx 'demo)
@@ -45,6 +44,9 @@
   (zenbox/start ctx)
 
   (zenbox/stop ctx)
+
+  (zenbox/rpc-call ctx {:method 'zen-ui/get-symbol
+                        :params {:name 'zen-ui/tag-view}})
 
   (restart-ui)
 
