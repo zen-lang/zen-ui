@@ -9,16 +9,6 @@
             [app.routes :refer [href]]
             [clojure.string :as str]))
 
-(zrf/defx ctx
-  [{db :db} [_ phase {params :params}]]
-  (cond
-    (= :deinit phase) {}
-
-    (or (= :init phase) (= :params phase))
-    {:db (-> db
-             (assoc-in
-              (zf/schema-path {:zf/root [::db :form] :zf/path [:method]})
-              {:options ["zen-ui/navigation"]}))}))
 
 (zrf/defs model [db _]
   (get-in db [::model :data]))
@@ -29,15 +19,42 @@
     {:zen/rpc {:method (:method req)
                :path [::db :result]}}))
 
+
+(zrf/defx rpc-methods-loaded
+  [{db :db} [_ {data :data}]]
+  (let [res (:methods data)]
+    {:db (assoc-in db (zf/schema-path {:zf/root [::db :form] :zf/path [:method]}) {:options res})}))
+
+;; (zrf/defx ctx
+;;   [{db :db} [_ phase {params :params}]]
+;;   (cond
+;;     (= :deinit phase) {}
+
+;;     (or (= :init phase) (= :params phase))
+;;     {:db (-> db
+;;              (assoc-in
+;;               (zf/schema-path {:zf/root [::db :form] :zf/path [:method]})
+;;               {:options ["zen-ui/navigation"]}))}))
+
+(zrf/defx ctx
+  [{db :db} [_ phase {params :params}]]
+  (cond
+    (= :deinit phase) {}
+
+    (or (= :init phase) (= :params phase))
+    {:zen/rpc {:method 'zen-ui/rpc-methods
+               :path [::db :rpc-methods]
+               :success {:event rpc-methods-loaded}}}))
+
 (zrf/defsp result [::db :result :data])
 
 (zrf/defview page [model result]
-  [:div {:class (c [:p 8])} 
+  [:div {:class (c [:p 8])}
    [:div {:class (c [:space-y 3] [:w 300] {:margin "0 auto"})}
     [:h2 "RPC Console"]
     [:div "Method:"]
-    [anti.select/zf-select
-     {:placeholder "Method" :opts {:zf/root [::db :form] :zf/path [:method]}}]
+    [anti.select/zf-select {:placeholder "Method"
+                            :opts {:zf/root [::db :form] :zf/path [:method]}}]
 
     [:div "Params:"]
     [anti.textarea/zf-textarea
@@ -45,9 +62,6 @@
     [anti.button/button {:type "primary" :on-click #(zrf/dispatch [call-rpc])} "Send"]
 
     (when result
-      [:div (pr-str result)]
-
-      )
-    ]])
+      [:div (pr-str result)])]])
 
 (pages/reg-page ctx page)

@@ -44,11 +44,19 @@
 
 (defmethod rpc-call 'demo/insert-patient
   [ctx req]
-  {:result (storage/insert ctx req)})
+  {:result (storage/handle ctx req)})
+
+(defmethod rpc-call 'demo/read-patient
+  [ctx req]
+  {:result (storage/handle ctx req)})
 
 (defmethod rpc-call 'demo/delete-patient
   [ctx req]
-  {:result (storage/delete ctx req)})
+  {:result (storage/handle ctx req)})
+
+(defmethod rpc-call 'zen-ui/rpc-methods
+  [ctx req]
+  {:result {:methods (zen/get-tag ctx 'zenbox/rpc)}})
 
 (defn dispatch-op [ctx route request]
   (if route

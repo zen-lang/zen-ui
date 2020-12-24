@@ -94,10 +94,12 @@
     [:option "Really long option that will likely overlap the chevron"]
     [:option "Option 2"]
     [:option "Option 3"]]
+
    [zf-select {:opts {:zf/root [::form] :zf/path [:zf-select]}}
     [:option {:value "option-1"} "Option 1"]
     [:option {:value "option-2"} "Option 2"]
     [:option {:value "option-3"} "Option 3"]]
+
    [zf-select {:opts {:zf/root [::form] :zf/path [:zf-select-multiple]} :multiple true}
     [:option {:value "option-1"} "Option 1"]
     [:option {:value "option-2"} "Option 2"]

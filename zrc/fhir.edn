@@ -2,7 +2,9 @@
  patient
  {:zen/tags #{zen/schema}
   :type zen/map
-  :keys {:name {:type zen/vector
+  :keys {:id {:type zen/string}
+         :resourceType {:type zen/string}
+         :name {:type zen/vector
                 :every {:type zen/map
                         :keys {:family {:type zen/string}
                                :given {:type zen/vector :every {:type zen/string}}}}}

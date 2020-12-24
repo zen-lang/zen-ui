@@ -29,6 +29,4 @@
     :params {:ns "myns.myns"
              :name "mysubmol"}})
 
-
-
   )

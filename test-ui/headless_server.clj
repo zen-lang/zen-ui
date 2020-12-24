@@ -1,6 +1,6 @@
 (ns headless-server
   (:require [mybox.world :as world]
-            [re-frame.core :as rf]
+            ([re-frame.core :as rf])
             [re-frame.interop]
             [app.core]
             [anti.select-model]
