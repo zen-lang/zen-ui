@@ -32,17 +32,13 @@
       {:error errors}
       {:result (get-in @storage [(:resourceType params) (:id params)])})))
 
-(defn handle [ctx req]
-  (let [params (:params req)
-        rpc-config (zen/get-symbol ctx (symbol (:method req)))
-        {:keys[storage] :as operation} (zen/get-symbol ctx (:operation rpc-config))
+(defn handle [ctx rpc params]
+  (let [{:keys[storage] :as operation} (zen/get-symbol ctx (:handler rpc))
         {:keys [persist]} (zen/get-symbol ctx storage)
-        {:keys [kind]} (zen/get-symbol ctx persist)
-        ]
+        {:keys [kind]} (zen/get-symbol ctx persist)]
     (if (= kind "atom")
       (inmemory ctx operation params)
-      {:error "not implemented"})))
-
+      {:error "not implemented!!!"})))
 
 (comment
   @storage
