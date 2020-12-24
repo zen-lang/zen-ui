@@ -2,11 +2,23 @@
 
  rpc {:zen/tags #{zen/tag}}
 
+ service
+ {:zen/tags #{zen/tag zen/schema}
+  :type zen/map
+  :schema-key {:key :service}
+  :keys {:service {:type zen/symbol}}}
+
+ api
+ {:zen/tags #{zen/tag zen/schema}
+  :type zen/any}
+
  server
  {:zen/tags #{zen/tag zen/schema}
   :type zen/map
   :require #{:port}
-  :keys {:port {:type zen/integer}
+  :keys {:apis {:type zen/set :every {:confirms #{api}}}
+         :port {:type zen/integer}
+         :services {:type zen/set :every {:type zen/symbol :tags #{service}}}
          ;; :ip                 ; Which ip (if has many ips) to bind
          ;; :thread             ; Http worker thread count
          ;; :queue-size         ; Max job queued before reject to project self
@@ -21,6 +33,21 @@
          ;; :warn-logger        ; Arity-2 fn (args: string text, exception) to log warnings
          ;; :event-logger       ; Arity-1 fn (arg: string event name)
          ;; :event-names        ; map of HTTP-Kit event names to respective loggable event names"
-         :api {:type zen/any}}}
+         }}
 
- }
+ pg {:zen/tags #{zen/tag zen/schema service}
+     :type zen/map
+     :keys {:port {:type zen/integer}
+            :host {:type zen/string}
+            :user {:type zen/string}
+            :password {:type zen/string}
+
+            ;; :auto-commit        true
+            ;; :read-only          false
+            ;; :connection-timeout 30000
+            ;; :validation-timeout 5000
+            ;; :idle-timeout       600000
+            ;; :max-lifetime       1800000
+            ;; :minimum-idle       10
+            ;; :maximum-pool-size  10
+            }}}

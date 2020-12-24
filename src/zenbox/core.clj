@@ -3,6 +3,7 @@
    [zenbox.web.core :as web]
    [zen.core :as zen]
    [zenbox.storage :as storage]
+   [zenbox.pg.core]
    [clojure.string :as str]))
 
 (defmulti operation (fn [ctx op req] (:operation op)))
@@ -84,6 +85,14 @@
         tags (zen/get-tag ctx 'zen/tag)]
     {:result {:symbols symbols :tags tags}}))
 
+(defmethod rpc-call 'demo/insert-patient
+  [ctx req]
+  {:result (storage/handle ctx req)})
+
+(defmethod rpc-call 'demo/read-patient
+  [ctx req]
+  {:result (storage/handle ctx req)})
+
 (defmethod rpc-call 'storage/handle
   [ctx rpc req]
   (storage/handle ctx rpc (:params req)))
@@ -91,6 +100,10 @@
 (defmethod rpc-call 'zen-ui/rpc-methods
   [ctx rpc req]
   {:result {:methods (zen/get-tag ctx 'zenbox/rpc)}})
+
+(defmethod rpc-call 'zen-ui/endpoints
+  [ctx req]
+  {:result {:endpoints (zen/get-tag ctx 'zenbox/api)}})
 
 (defn dispatch-op [ctx route request]
   (if route
@@ -107,6 +120,7 @@
 
 (comment
   (def ctx (zen/new-context))
+
   (zen/read-ns ctx 'demo)
 
   (start ctx)

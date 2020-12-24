@@ -11,6 +11,9 @@ npm:
 jar:
 	clj -A:ui:build -m build
 
+up:
+	docker-compose up -d
+
 test:
 	clj -A:ui:test:kaocha
 
