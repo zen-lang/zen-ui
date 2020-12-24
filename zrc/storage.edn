@@ -9,30 +9,54 @@
  storage
  {:zen/tags #{zen/tag}}
 
- atom-storage
+ storage-impl
+ {:zen/tags #{zen/tag}}
+
+ operation-impl
+ {:zen/tags #{zen/tag}}
+
+ zen-storage
  {:zen/tags #{storage}
-  :kind "atom"
+  :kind "zen"
   }
+
+ pgstore-config
+ {:zen/tags #{storage-impl}
+  :persist zen-storage
+  :tags #{storage pgstore}
+  :namespace "storage"
+  }
+
+ create-pgstore
+ {:zen/tags #{operation-impl}
+  :storage pgstore-config
+  :schema pgstore
+  :operation insert-op}
 
  pgstore
  {:zen/tags #{zen/tags zen/schema}
   :type zen/map
-  :require #{:kind :user :password :host :port}
-  }
+  :require #{:user :password :host :port}
+  :confirms #{storage-schema}
+  :keys
+  {:user {:type zen/string}
+   :password {:type zen/string}
+   :host {:type zen/string}
+   :port {:type zen/number}}}
 
  postgres
- {:zen/tag #{storage pgstore}
+ {:zen/tags #{storage pgstore}
   :kind "postgres"
   :user "root"
   :password "password"
   :host "db"
   :port 5432}
 
- storage-impl
- {:zen/tags #{zen/tag}}
+ atom-storage
+ {:zen/tags #{storage}
+  :kind "atom"
+  }
 
- operation-impl
- {:zen/tags #{zen/tag}}
 
  inmemory
  {:zen/tags #{storage-impl}

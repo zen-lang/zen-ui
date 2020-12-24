@@ -39,6 +39,11 @@
   :operation storage/handle
   :handler storage/read-practitoner}
 
+ create-pgstore
+ {:zen/tags #{zenbox/rpc}
+  :operation storage/handle
+  :handler storage/create-pgstore}
+
  dashboard
  {:zen/tags #{zenbox/rpc}}
 

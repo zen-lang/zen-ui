@@ -2,6 +2,7 @@
   (:require [zenbox.storage :as sut]
             [zenbox.core :as zenbox]
             [zen.core :as zen]
+            [zen.store :as zen-extra]
             [clojure.test :refer [deftest is]]
             [matcho.core :as matcho]))
 
@@ -69,4 +70,53 @@
       :schema ['fhir/resource :require]}]})
 
 
+
+  (matcho/match
+   (operation-wrapper ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house
+                                                                  :kind "postgres"
+                                                                  :user "superadmin"
+                                                                  :password "123"
+                                                                  :host "clickhouse-db"
+                                                                  :port 5432}})
+
+   {:result
+    {:kind "postgres",
+     :user "superadmin",
+     :password "123",
+     :host "clickhouse-db",
+     :port 5432,
+     :zen/tags #{'storage/storage 'storage/pgstore},
+     :zen/name 'storage/click-house}
+    })
+
+  (matcho/match (zen/get-symbol ctx 'storage/click-house)
+                {:kind "postgres",
+                 :user "superadmin",
+                 :password "123",
+                 :host "clickhouse-db",
+                 :port 5432,
+                 :zen/tags #{'storage/storage 'storage/pgstore},
+                 :zen/name 'storage/click-house})
+
+  #_(matcho/match
+   (operation-wrapper ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house
+                                                                  :kind "postgres"}})
+
+   {:error
+    [{:message ":password is required",
+      :type "require",
+      :path [:password],
+      :schema ['storage/pgstore :require]}
+     {:message ":port is required",
+      :type "require",
+      :path [:port],
+      :schema ['storage/pgstore :require]}
+     {:message ":host is required",
+      :type "require",
+      :path [:host],
+      :schema ['storage/pgstore :require]}
+     {:message ":user is required",
+      :type "require",
+      :path [:user],
+      :schema ['storage/pgstore :require]}]})
   )
