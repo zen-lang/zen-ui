@@ -40,10 +40,10 @@
                                 :body (to-transit (select-keys opts [:method :params :id]))}))
             (.then
              (fn [resp]
-               (js/console.log "resp" resp)
                (.then (.text resp)
                       (fn [doc]
                         (let [cdoc  (from-transit doc)]
+                          (println "PRC:" (:method opts) (:params opts) cdoc)
                           (if-let [res  (and (< (.-status resp) 299) (:result cdoc))]
                             (do (swap! db update-in path merge {:loading false :data res})
                                 (when success (dispatch-event success {:response resp :data res})))

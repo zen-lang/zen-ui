@@ -106,6 +106,7 @@
                                {:border-radius "100%" :font-size "9px" :text-align "center" :line-height "0.75rem"})
                             (cond
                               (contains? tgs 'zen/type)     (c  [:bg :green-400])
+                              (contains? tgs 'zenbox/rpc)     (c  [:bg :red-300])
                               (contains? tgs 'zen/tag)      (c  [:bg :orange-300])
                               (contains? tgs 'zen/property) (c  [:bg :blue-300])
                               (contains? tgs 'zen/valueset) (c  [:bg :pink-300])
@@ -115,11 +116,12 @@
      (cond
          (contains? tgs 'zen/tag) "#"
          (contains? tgs 'zen/type)  "T"
+         (contains? tgs 'zenbox/rpc)  "R"
          (contains? tgs 'zen/valueset)  "V"
          (contains? tgs 'zen/schema) "S")]))
 
 (defn render-tree [syms]
-  [:div {:class (c [:pl 2])}
+  [:div {:class (c )}
    (for [[k v] (sort-by first syms)]
      [:div {:key k}
       [:a {:href (when-let [nm (:name v)] (symbol-url nm))
@@ -129,12 +131,15 @@
          (symbol-icon v))
        [:div (str k)]]
       (when-let [ch (and (:children v))]
-        [:div {:class (c )}
+        [:div {:class (c [:pl 3])}
          (render-tree ch)])])])
 
 (zrf/defview navigation [nav-model]
-  [:div {:class (c {})}
-   (render-tree nav-model)])
+  [:div {:class (c :flex-col)}
+   [:div {:class (c)}
+    "Filters "]
+   [:div {:class (c :flex-1)}
+    (render-tree nav-model)]])
 
 (defn layout [content]
   [:div {:class (c :flex :items-stretch :h-screen)}
@@ -146,4 +151,4 @@
                      :overflow-y-auto)}
      [:div {:class (c [:pl 2])}
       [navigation]]]
-    [:div content]]])
+    [:div {:class (c :flex-1)} content]]])

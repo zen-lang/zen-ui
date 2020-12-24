@@ -1,5 +1,7 @@
 {ns zenbox
 
+ rpc {:zen/tags #{zen/tag}}
+
  server
  {:zen/tags #{zen/tag zen/schema}
   :type zen/map

@@ -27,9 +27,47 @@
   [ctx req]
   {:result (:tags @ctx)})
 
+(defmulti view (fn [ctx view model] (:zen/name view)))
+
+(defmethod view 'zen-ui/view-for-schema
+  [ctx view model]
+  model)
+
+(defmethod view 'zen-ui/view-for-tag
+  [ctx view model]
+  (let [tag (:zen/name model)]
+    (->> (zen/get-tag ctx tag)
+         (mapv (fn [x]
+                 (let [m (zen/get-symbol ctx x)]
+                   {:name x :desc (:zen/desc m) :tags (:zen/tags m)}))))))
+
+(defmethod view 'zen-ui/view-for-valuset
+  [ctx view model]
+  model)
+
+(defmethod view 'zen-ui/view-for-edn
+  [ctx view model]
+  model)
+
+(defmethod view :default [ctx view model]
+  {:status :error
+   :message (str "No impl for " (:zen/name view))})
+
+(defn resolve-views [ctx model]
+  (let [tags (:zen/tags model)]
+    (->> (zen/get-tag ctx 'zen-ui/tag-view)
+         (reduce (fn [acc tv]
+                   (let [v (zen/get-symbol ctx tv)]
+                     (if (or (nil? (:tag v)) (contains? tags (:tag v)))
+                       (assoc acc tv {:view v :data (view ctx v model)})
+                       acc)
+                     )) {}))))
+
 (defmethod rpc-call 'zen-ui/get-symbol
   [ctx {{nm :name} :params}]
-  {:result (zen/get-symbol ctx (symbol nm))})
+  (let [model (zen/get-symbol ctx (symbol nm))
+        views (resolve-views ctx  model)]
+    {:result {:views views :model model}}))
 
 (defmethod rpc-call 'zen-ui/navigation
   [ctx req]
@@ -85,6 +123,8 @@
    (zen/get-tag ctx 'zenbox/server)
    (mapv (fn [sym] (zen/get-symbol ctx sym))))
 
+  (resolve-views ctx #{'zen/schema})
+  
 
 
   )
