@@ -21,19 +21,23 @@
 
  insert-patient
  {:zen/tags #{zenbox/rpc}
-  :operation storage/insert-patient}
+  :operation storage/handle
+  :handler storage/insert-patient}
 
  read-patient
  {:zen/tags #{zenbox/rpc}
-  :operation storage/read-patient}
+  :operation storage/handle
+  :handler storage/read-patient}
 
  delete-patient
  {:zen/tags #{zenbox/rpc}
-  :operation storage/delete-patient}
+  :operation storage/handle
+  :handler storage/delete-patient}
 
  read-practitioner
  {:zen/tags #{zenbox/rpc}
-  :operation storage/read-practitoner}
+  :operation storage/handle
+  :handler storage/read-practitoner}
 
  dashboard
  {:zen/tags #{zenbox/rpc}}
