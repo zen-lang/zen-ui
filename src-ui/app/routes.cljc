@@ -5,7 +5,7 @@
 
 (def global-contexts {})
 
-(def routes {:context :app.core/ctx
+(def routes {:context :app.layout/ctx
              :. :app.dashboard/ctx
              "rpc" {:. :app.rpc/ctx}
              "symbols" {[:name] {:. :app.symbols/ctx}}

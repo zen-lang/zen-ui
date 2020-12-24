@@ -38,15 +38,6 @@
   [fx _]
   (println "INIT"))
 
-(zrf/defx ctx
-  [{db :db} [_ phase {params :params}]]
-  (println "CTX nav:")
-  (cond
-    (= :deinit phase) {}
-
-    (or (= :init phase) (= :params phase))
-    {:zen/rpc {:method 'zen-ui/navigation
-               :path [:navigation]}}))
 
 (defn mount-root []
   (rf/clear-subscription-cache!)

@@ -4,6 +4,16 @@
             [anti.checkbox]
             [clojure.string :as str]))
 
+(zrf/defx ctx
+  [{db :db} [_ phase {params :params}]]
+  (println "CTX nav:")
+  (cond
+    (= :deinit phase) {}
+
+    (or (= :init phase) (= :params phase))
+    {:zen/rpc {:method 'zen-ui/navigation
+               :path [:navigation]}}))
+
 (zrf/defs current-uri [db]
  (:uri (first (:route/history db))))
 
@@ -40,18 +50,7 @@
     :items []}])
 
 
-(defn main-menu []
-  [:div {:class (c :absolute :flex [:space-x 8] [:bg :white] [:inset 0] [:left 14] [:z 1001] [:p 10])}
-   (for [{t :title xs :items} main-items]
-     [:div {:key t :class (c :flex :flex-col [:space-y 1])}
-      [:h3 {:class (c :text-bold [:mb 2] {:border-bottom "1px solid #ddd"})} t]
-      (for [x xs]
-        [:a {:href     (:href x)
-             :class    (c {:opacity "0.8"} [:hover {:opacity "1"}])
-             :target   (:target x)
-             :key      (:href x)
-             :on-click #(zrf/dispatch [do-toggle-menu false])}
-         (:title x)])])])
+
 
 (defn quick-item
   [item]
@@ -67,33 +66,17 @@
    [:i.fal {:class [(c [:my 1] :text-xl) (:icon item)]}]
    [:span {:class (c {:font-size "9px"})} (:title item)]])
 
-(zrf/defview quick-menu [toggle-menu current-uri]
-  [:<>
-   (when toggle-menu [main-menu])
-   [:div {:class (c [:z 100] :overflow-hidden :flex :flex-col
-                    {:background-color "#2c3645"
-                     :box-shadow       "4px 0 6px -1px rgba(0, 0, 0, 0.15), 2px 0 4px -1px rgba(0, 0, 0, 0.09)"})}
-    [quick-item
-     {:title    "Menu"
-      :icon     "fa-bars"
-      :active   toggle-menu
-      :on-click #(zrf/dispatch [do-toggle-menu])}]
-    (for [i quicks]
-      ^{:key (or (:key i) (:href i))}
-      [quick-item
-       (-> i
-           (assoc :active (and (not toggle-menu) (= current-uri (:href i))))
-           (update :on-click (fn [f] (comp #(zrf/dispatch [::toggle-menu false])
-                                           (or f identity)))))])
-    [:div {:class (c :flex-1)}]
-    [quick-item
-     {:key   "logout"
-      :on-click #(zrf/dispatch [logout])
-      :icon     "fa-sign-out-alt"
-      :title    "Logout"}]]])
 
 
-(zrf/defsp nav-model [:navigation :data])
+(zrf/defs nav-model
+  [db _]
+  (let [tgs (get-in db [::tags :value :tags])]
+    (println "tgs" tgs)
+    (get-in db [:navigation :data :symbols])))
+
+(zrf/defs tags
+  [db _]
+  (get-in db [:navigation :data :tags]))
 
 (defn url [pth & [ext]]
   (str "#/" (str/join "/" pth) (when ext (str "." (name ext)))))
@@ -138,20 +121,44 @@
         [:div {:class (c [:pl 3])}
          (render-tree ch)])])])
 
-(zrf/defview navigation [nav-model]
-  [:div {:class (c :flex-col)}
-   [:div {:class (c)}
-    [:b "Filters "]
+(zrf/defview main-menu [tags]
+  [:div {:class (c :absolute :flex :overflow-y-auto [:space-x 8] [:bg :white] [:inset 0] [:left 14] [:z 1001] [:p 10])}
+   [:div {:class (c [:space-y 4])}
+    [:h3 {:class (c :text-bold [:mb 2] {:border-bottom "1px solid #ddd"})} "Tags"]
     [anti.checkbox/zf-checkbox-group
      {:class   (c :flex :flex-col [:space-y 1])
       :opts    {:zf/root [::tags] :zf/path [:tags]}
-      :options (->> (:tags nav-model)
-                    (mapv (fn [x] {:label (str x) :value x})))}]
-    [:br]
-    [:hr]
-    [:br]]
-   [:div {:class (c :flex-1)}
-    (render-tree (:symbols nav-model))]])
+      :options (->> tags
+                    (mapv (fn [x] {:label (str x) :value x}))
+                    (into [{:label "Any" :value 'any}]))}]]])
+
+(zrf/defview quick-menu [toggle-menu current-uri]
+  [:<>
+   (when toggle-menu [main-menu])
+   [:div {:class (c [:z 100] :overflow-hidden :flex :flex-col
+                    {:background-color "#2c3645"
+                     :box-shadow       "4px 0 6px -1px rgba(0, 0, 0, 0.15), 2px 0 4px -1px rgba(0, 0, 0, 0.09)"})}
+    [quick-item
+     {:title    "Menu"
+      :icon     "fa-bars"
+      :active   toggle-menu
+      :on-click #(zrf/dispatch [do-toggle-menu])}]
+    (for [i quicks]
+      ^{:key (or (:key i) (:href i))}
+      [quick-item
+       (-> i
+           (assoc :active (and (not toggle-menu) (= current-uri (:href i))))
+           (update :on-click (fn [f] (comp #(zrf/dispatch [::toggle-menu false])
+                                       (or f identity)))))])
+    [:div {:class (c :flex-1)}]
+    [quick-item
+     {:key   "logout"
+      :on-click #(zrf/dispatch [logout])
+      :icon     "fa-sign-out-alt"
+      :title    "Logout"}]]])
+
+(zrf/defview navigation [nav-model]
+  (render-tree nav-model))
 
 (defn layout [content]
   [:div {:class (c :flex :items-stretch :h-screen)}
@@ -163,4 +170,4 @@
                      :overflow-y-auto)}
      [:div {:class (c [:pl 2])}
       [navigation]]]
-    [:div {:class (c :flex-1)} content]]])
+    [:div {:class (c :flex-1 :overflow-y-auto)} content]]])

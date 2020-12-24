@@ -80,7 +80,7 @@
   [{d :data}]
   [:div {:class (c [:py 4] :divide-y)}
    (for [{nm :name desc :desc tgs :tags} (->> d (sort-by #(str (:name %))))]
-     [:div {:class (c :flex [:space-x 4] [:py 1])}
+     [:div {:key nm :class (c :flex [:space-x 4] [:py 1])}
       [:a {:href (symbol-url nm) :class (c :block :whitespace-no-wrap [:text :blue-600])}
        (str nm)]
       [:div {:class (c [:text :gray-700] :text-sm)} desc]])])
@@ -222,7 +222,8 @@
    [:div {:class (c :flex :w-full [:mt 4])}
     [:div {:class (c [:w 4] :border-b)}]
     (for [[k {v :view}] (:views model)]
-      [:a {:class (cls
+      [:a {:key k
+           :class (cls
                    (c :flex-1 [:py 0.5] :border :text-center [:bg :gray-200] [:text :gray-600]
                       {:border-top-left-radius "4px"
                        :border-top-right-radius "4px"})
