@@ -16,7 +16,12 @@
         zen-lang/zen {:local/root "zen"}
         clj-time     {:mvn/version "0.15.1"}
         com.atlassian.commonmark/commonmark {:mvn/version "0.15.0"}
-        com.atlassian.commonmark/commonmark-ext-gfm-tables {:mvn/version "0.15.0"}}
+        com.atlassian.commonmark/commonmark-ext-gfm-tables {:mvn/version "0.15.0"}
+
+
+        com.zaxxer/HikariCP            {:mvn/version "3.3.1"}
+        org.clojure/java.jdbc          {:mvn/version "0.7.9"}
+        org.postgresql/postgresql      {:mvn/version "42.2.5.jre7"}}
 
  :aliases   {:ui      {:extra-paths ["src-ui" "src-c"]
                        :extra-deps  {org.clojure/clojurescript   {:mvn/version "1.10.764"}

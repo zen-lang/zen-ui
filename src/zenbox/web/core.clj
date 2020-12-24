@@ -12,7 +12,8 @@
    [clojure.walk]
    [zen.core :as zen]
    [ring.middleware.content-type]
-   [zenbox.web.router])
+   [zenbox.web.router]
+   [zenbox.services :as srv])
   (:use [ring.middleware.resource]
         [ring.middleware.file]
         [ring.middleware.not-modified]))
@@ -87,17 +88,26 @@
   [ctx dispatch-op]
   (->> (zen/get-tag ctx 'zenbox/server)
        (map (fn [sym] (zen/get-symbol ctx sym)))
-       (map (fn [srv-def]
-              (let [dispatch (fn [req] (dispatch-op ctx (zenbox.web.router/route ctx srv-def req) req))
-                    handler (-> (mk-handler dispatch)
-                                (wrap-static))
-                    ;; todo add more http-kit configs
-                    srv (http-kit/run-server handler srv-def)]
-                (swap! ctx assoc-in [:zenbox/servers (:zen/name srv-def)] {:server srv :handler handler}))))))
+       (mapv (fn [srv-def]
+               (println "srv" srv-def)
+               (doseq [srv-nm (:services srv-def)]
+                 (when-let [srv (zen/get-symbol ctx srv-nm)]
+                   (println "start service " srv)
+                   (srv/start ctx srv)))
+               (let [dispatch (fn [req] (dispatch-op ctx (zenbox.web.router/route ctx srv-def req) req))
+                     handler (-> (mk-handler dispatch)
+                                 (wrap-static))
+                     ;; todo add more http-kit configs
+                     srv (http-kit/run-server handler srv-def)]
+                 (swap! ctx assoc-in [:zenbox/servers (:zen/name srv-def)] {:server srv :handler handler :def srv-def}))))))
 
 
 (defn stop [ctx]
   (doseq [[nm inst] (:zenbox/servers @ctx)]
     (when-let [srv (:server inst)]
       (srv)
-      (swap! ctx update :zenbox/servers dissoc nm))))
+      (swap! ctx update :zenbox/servers dissoc nm)
+      (for [srv-nm (get-in inst [:def :services])]
+        (when-let [srv (zen/get-symbol ctx srv-nm)]
+          (println "stop service " srv)
+          (srv/stop ctx srv))))))

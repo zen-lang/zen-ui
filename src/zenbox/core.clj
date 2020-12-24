@@ -3,6 +3,7 @@
    [zenbox.web.core :as web]
    [zen.core :as zen]
    [zenbox.storage :as storage]
+   [zenbox.pg.core]
    [clojure.string :as str]))
 
 (defmulti operation (fn [ctx op req] (:operation op)))

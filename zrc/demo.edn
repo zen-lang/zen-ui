@@ -1,17 +1,25 @@
 {ns demo
  import #{zenbox zen-ui fhir storage}
 
+ db
+ {:zen/tags #{zenbox/service}
+  :service zenbox/pg
+  :port 5451
+  :host "localhost"
+  :user "postgres"
+  :password "postgres"
+  :database "mybox"}
+
  server
  {:zen/tags #{zenbox/server}
   :port 4445
+  :services #{db}
   :apis #{api}}
 
  index-op
  {:zen/tags #{zenbox/op}
   :operation zenbox/response
-  :response {:status 302
-             :headers {"location" "static/index.html"}}}
-
+  :response {:status 302 :headers {"location" "static/index.html"}}}
 
  ;; instance of zenbox/json-rpc
  json-rpc-op
