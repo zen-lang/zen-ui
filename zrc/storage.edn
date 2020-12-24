@@ -25,14 +25,6 @@
  storage-op
  {:zen/tags #{zen/tag}}
 
- insert-op
- {:zen/tags #{storage-op}
-  :operation "insert"}
- 
- delete-op
- {:zen/tags #{storage-op}
-  :operation "delete"}
-
  storage-impl
  {:zen/tags #{zen/tag}}
 
@@ -40,10 +32,15 @@
  {:zen/tags #{storage-impl}
   :persist inmemory
   :schema fhir/patinet
-  :operations insert-op}
+  :operation insert-op}
+
+ read-patient
+ {:zen/tags #{storage-impl}
+  :persist inmemory
+  :operation read-op}
 
  delete-patient
  {:zen/tags #{storage-impl}
   :persist inmemory
-  :operations delete-op}
+  :operation delete-op}
  }

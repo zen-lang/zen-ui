@@ -8,6 +8,22 @@
 (deftest test-storage
   (def ctx (zen/new-context))
   (zen/read-ns ctx 'demo)
-  (zenbox/rpc-call ctx {:method 'demo/insert-patient})
 
+  (def sample-valid-patinet {:resourceType "Patient" :id "patient"})
+
+  (matcho/match
+   (zenbox/rpc-call ctx {:method 'demo/insert-patient :params sample-valid-patinet})
+   {:result sample-valid-patinet})
+
+  (matcho/match
+   (zenbox/rpc-call ctx {:method 'demo/read-patient :params sample-valid-patinet})
+   {:result sample-valid-patinet})
+
+  (matcho/match
+   (zenbox/rpc-call ctx {:method 'demo/delete-patient :params sample-valid-patinet})
+   {:result sample-valid-patinet})
+
+  (matcho/match
+   (zenbox/rpc-call ctx {:method 'demo/read-patient :params sample-valid-patinet})
+   {:result nil})
   )

@@ -23,6 +23,10 @@
  {:zen/tags #{zenbox/rpc}
   :operation storage/insert-patient}
 
+ read-patient
+ {:zen/tags #{zenbox/rpc}
+  :operation storage/read-patient}
+
  delete-patient
  {:zen/tags #{zenbox/rpc}
   :operation storage/delete-patient}
