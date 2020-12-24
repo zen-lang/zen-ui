@@ -107,8 +107,13 @@
 (defmethod parse-format nil [ct _ {b :body}]
   {})
 
+(defmethod parse-format :transit [_ _ {b :body}]
+  (when b
+    (let [r (transit/reader b :json)]
+      {:resource (transit/read r)})))
+
 (defmethod parse-format :default [ct _ {b :body}]
-  (throw (RuntimeException. (str "Unknown/not supported Content-Type: " ct))))
+  (throw (RuntimeException. (str "Unknown Content-Type: " ct))))
 
 (defmethod parse-format :yaml [_ _ {b :body}]
   (when b

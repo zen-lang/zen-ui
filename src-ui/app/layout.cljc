@@ -95,28 +95,28 @@
   (str "#/" (str/join "/" pth) (when ext (str "." (name ext)))))
 
 (defn symbol-url [sym]
-  (url ["symbols" (str/replace sym #"/" ":")]))
+  (url ["symbols" (str/replace (str sym) #"/" ":")]))
 
 (defn symbol-icon [v]
-  (let [tgs (into #{} (:tags v))]
+  (let [tgs (:tags v)]
     [:div {:class
            (str/join " "
                      (mapv name
                            [(c [:w 3] [:h 3] [:mr 1]
                                {:border-radius "100%" :font-size "9px" :text-align "center" :line-height "0.75rem"})
                             (cond
-                              (contains? tgs "zen/type")     (c  [:bg :green-400])
-                              (contains? tgs "zen/tag")      (c  [:bg :orange-300])
-                              (contains? tgs "zen/property") (c  [:bg :blue-300])
-                              (contains? tgs "zen/valueset") (c  [:bg :pink-300])
-                              (contains? tgs "zen/schema")   (c  [:bg :green-300])
+                              (contains? tgs 'zen/type)     (c  [:bg :green-400])
+                              (contains? tgs 'zen/tag)      (c  [:bg :orange-300])
+                              (contains? tgs 'zen/property) (c  [:bg :blue-300])
+                              (contains? tgs 'zen/valueset) (c  [:bg :pink-300])
+                              (contains? tgs 'zen/schema)   (c  [:bg :green-300])
                               :else                         (c :border [:bg :gray-300]))]))
            :title (str/join " " tgs)}
      (cond
-         (contains? tgs "zen/tag") "#"
-         (contains? tgs "zen/type")  "T"
-         (contains? tgs "zen/valueset")  "V"
-         (contains? tgs "zen/schema") "S")]))
+         (contains? tgs 'zen/tag) "#"
+         (contains? tgs 'zen/type)  "T"
+         (contains? tgs 'zen/valueset)  "V"
+         (contains? tgs 'zen/schema) "S")]))
 
 (defn render-tree [syms]
   [:div {:class (c [:pl 2])}
@@ -127,7 +127,7 @@
                        [:hover [:text :gray-900]])}
        (when-let [tgs (:tags v)]
          (symbol-icon v))
-       [:div (subs (str k) 1)]]
+       [:div (str k)]]
       (when-let [ch (and (:children v))]
         [:div {:class (c )}
          (render-tree ch)])])])

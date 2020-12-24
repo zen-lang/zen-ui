@@ -1,10 +1,12 @@
 (ns user
   (:require
-    [clojure.java.io :as io]
-    [clojure.tools.namespace.repl :as repl]
-    [shadow.cljs.devtools.api :as shadow]
-    [shadow.cljs.devtools.config :as shadow.config]
-    [shadow.cljs.devtools.server :as shadow.server]))
+   [zenbox.core :as zenbox]
+   [zen.core :as zen]
+   [clojure.java.io :as io]
+   [clojure.tools.namespace.repl :as repl]
+   [shadow.cljs.devtools.api :as shadow]
+   [shadow.cljs.devtools.config :as shadow.config]
+   [shadow.cljs.devtools.server :as shadow.server]))
 
 (defn restart [])
 
@@ -33,11 +35,15 @@
   (repl/refresh))
 
 (comment
-  (reload-ns)
 
-  (restart)
+
+
+  (def ctx (zen/new-context))
+  (zen/read-ns ctx 'demo)
+
+  (zenbox/start ctx)
+  (zenbox/stop ctx)
 
   (restart-ui)
-
   )
 

@@ -3,7 +3,7 @@
             [zframes.re-frame :as zrf]
             [stylo.core :refer [c]]
             [app.routes :refer [href]]
-            [app.layout :refer [url]]
+            [app.layout :refer [symbol-url url]]
             [clojure.string :as str]))
 
 (zrf/defx ctx
@@ -25,12 +25,12 @@
               [:div {:class (c [:text :gray-500] :bold [:mx 1])} "{"]
               [:div
                (for [[k v] (sort-by (fn [[_ v]] (:row (meta v))) x)]
-                 [:div {:class (c :flex [:ml 2])}
+                 [:div {:class (c :flex [:ml 2]) :key k}
                   (edn k) (edn v)])]]
     (set? x) [:div {:class (c :flex)}
               [:div {:class (c [:text :gray-500] :bold [:mx 1])} "#{"]
               (for [v x]
-                [:div {:class (c :flex [:ml 2])} (edn v)])]
+                [:div {:key v :class (c :flex [:ml 2])} (edn v)])]
     (sequential? x) [:div {:class (c :flex)}
                      [:div {:class (c [:text :gray-500] :bold [:mx 1])} "["]
                      (if (or (keyword? (first x))
@@ -38,7 +38,7 @@
                        [:div {:class (c [:text :green-700] :bold [:mx 1])} (str  (str/join " " x) "]")]
                        [:div
                         (for [[idx v] (map-indexed (fn [i x] [i x]) x)]
-                          [:div {:class (c :flex [:ml 2])}
+                          [:div {:class (c :flex [:ml 2]) :key idx}
                            [:div {:class (c [:text :gray-500] :bold [:mx 1])} (str "[" idx "]")]
                            (edn v)])])]
     (number? x) [:div {:class (c [:text :orange-600])} x]
@@ -46,7 +46,7 @@
     (keyword? x) [:b {:class (c [:mr 2] :font-bold [:text :green-700])
                       :title (pr-str (meta x))}
                   (pr-str x)]
-    (symbol? x)  [:a {:class (c [:text :blue-800] [:mr 2]) :href (url ["symbols" (str x)])}  (pr-str x)]
+    (symbol? x)  [:a {:class (c [:text :blue-800] [:mr 2]) :href (symbol-url x)}  (pr-str x)]
     :else [:div "?" (pr-str x)]))
 
 (zrf/defview page [model]

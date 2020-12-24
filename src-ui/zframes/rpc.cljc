@@ -1,8 +1,18 @@
 (ns zframes.rpc
   (:require [re-frame.db :as db]
+            [cognitect.transit :as t]
             [re-frame.core :as rf]))
 
 (defonce debounce-state (atom {}))
+
+(defn to-transit [x]
+  (let [ w (t/writer :json)]
+    (t/write w x)))
+
+
+(defn from-transit [x]
+  (let [r (t/reader :json)]
+    (t/read r x)))
 
 (defn *rpc-fetch [{:keys [path debounce force success error] :as opts}]
   (println "RPC:" (:method opts) (:params opts))
@@ -22,17 +32,18 @@
 
         (-> (js/fetch "/json-rpc"
                       (clj->js {:method "post"
-                                :headers {"accept" "application/json"
-                                          "Content-Type" "application/json"
+                                :headers {"Accept" "application/transit+json"
+                                          "Content-Type" "application/transit+json"
                                           "Cache-Control" "no-cache"}
                                 :cache "no-store"
                                 :mode "cors"
-                                :body (.stringify js/JSON (clj->js (select-keys opts [:method :params :id])))}))
+                                :body (to-transit (select-keys opts [:method :params :id]))}))
             (.then
              (fn [resp]
-               (.then (.json resp)
+               (js/console.log "resp" resp)
+               (.then (.text resp)
                       (fn [doc]
-                        (let [cdoc (js->clj doc :keywordize-keys true)]
+                        (let [cdoc  (from-transit doc)]
                           (if-let [res  (and (< (.-status resp) 299) (:result cdoc))]
                             (do (swap! db update-in path merge {:loading false :data res})
                                 (when success (dispatch-event success {:response resp :data res})))
