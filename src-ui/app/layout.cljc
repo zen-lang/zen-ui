@@ -1,6 +1,7 @@
 (ns app.layout
   (:require [zframes.re-frame :as zrf]
             [stylo.core :refer [c]]
+            [anti.checkbox]
             [clojure.string :as str]))
 
 (zrf/defs current-uri [db]
@@ -140,9 +141,17 @@
 (zrf/defview navigation [nav-model]
   [:div {:class (c :flex-col)}
    [:div {:class (c)}
-    "Filters "]
+    [:b "Filters "]
+    [anti.checkbox/zf-checkbox-group
+     {:class   (c :flex :flex-col [:space-y 1])
+      :opts    {:zf/root [::tags] :zf/path [:tags]}
+      :options (->> (:tags nav-model)
+                    (mapv (fn [x] {:label (str x) :value x})))}]
+    [:br]
+    [:hr]
+    [:br]]
    [:div {:class (c :flex-1)}
-    (render-tree nav-model)]])
+    (render-tree (:symbols nav-model))]])
 
 (defn layout [content]
   [:div {:class (c :flex :items-stretch :h-screen)}

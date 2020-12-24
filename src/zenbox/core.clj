@@ -77,8 +77,9 @@
                  (reduce (fn [acc [nm data]]
                            (let [pth (interpose :children (str/split (str nm) #"[./]"))]
                              (assoc-in acc pth {:name nm :path pth :tags (:zen/tags data) :desc (:zen/desc data)})))
-                         {}))]
-    {:result symbols}))
+                         {}))
+        tags (zen/get-tag ctx 'zen/tag)]
+    {:result {:symbols symbols :tags tags}}))
 
 (defmethod rpc-call 'demo/insert-patient
   [ctx req]
