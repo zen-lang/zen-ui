@@ -12,7 +12,9 @@
    [zenbox.web.core :as web]
    [zenbox.web.router :refer [get-all-paths]]))
 
-(defmulti operation (fn [ctx op req] (:operation op)))
+(defmulti operation (fn [ctx op req]
+                      (println "REQ: " op)
+                      (:operation op)))
 
 (defn rpc [ctx req]
   (if-let [op (zen/get-symbol ctx (:method req))]
@@ -29,15 +31,27 @@
 
 (defmethod operation 'zenbox/json-rpc
   [ctx op req]
-  (let [resource (:resource req)
-        resp (rpc ctx resource)]
-    (if (:result resp)
-      {:status 200 :body resp}
-      {:status 422 :body resp})))
+  (try
+    (let [resource (:resource req)
+          resp (rpc ctx resource)]
+      (if (:result resp)
+        {:status 200 :body resp}
+        {:status 422 :body resp}))
+    (catch Exception e
+      {:status 500 :body {:error (str e)}}))
+  )
 
 (defmethod operation 'zenbox/response
   [ctx op req]
   (:response op))
+
+(defmethod operation 'zen-ui/get-tags
+  [ctx op req]
+  {:status 200 :body {:tags "123"}})
+
+(defmethod operation 'zen-ui/get-symbols
+  [ctx op req]
+  {:status 200 :body {:tags "123"}})
 
 ;; (defmethod rpc-call 'zen-ui/all-tags
 ;;   [ctx rpc req]
