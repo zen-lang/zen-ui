@@ -121,20 +121,25 @@
                            [(c [:w 3] [:h 3] [:mr 1]
                                {:border-radius "100%" :font-size "9px" :text-align "center" :line-height "0.75rem"})
                             (cond
-                              (contains? tgs 'zen/type)     (c  [:bg :green-400])
-                              (contains? tgs 'zenbox/rpc)     (c  [:bg :red-300])
-                              (contains? tgs 'zen/tag)      (c  [:bg :orange-300])
-                              (contains? tgs 'zen/property) (c  [:bg :blue-300])
+                              (contains? tgs 'zen/type)     (c  [:text :green-700])
+                              (contains? tgs 'zenbox/rpc)     (c  [:text :red-700])
+                              (contains? tgs 'zenbox/store)     (c  [:text :blue-700])
+                              (contains? tgs 'zen/tag)      (c  [:text :yellow-600])
+                              (contains? tgs 'zen/property) (c  [:text :blue-700])
                               (contains? tgs 'zen/valueset) (c  [:bg :pink-300])
-                              (contains? tgs 'zen/schema)   (c  [:bg :green-300])
+                              (contains? tgs 'zen/schema)   (c  [:text :green-600])
                               :else                         (c :border [:bg :gray-300]))]))
            :title (str/join " " tgs)}
      (cond
-         (contains? tgs 'zen/tag) "#"
-         (contains? tgs 'zen/type)  "T"
-         (contains? tgs 'zenbox/rpc)  "R"
-         (contains? tgs 'zen/valueset)  "V"
-         (contains? tgs 'zen/schema) "S")]))
+       (contains? tgs 'zen/tag) [:i.fas.fa-tag]
+       (contains? tgs 'zen/type)  "T"
+       (contains? tgs 'zenbox/rpc) [:i.fad.fa-phone-rotary]
+       (contains? tgs 'zen/valueset)  "V"
+       (contains? tgs 'zenbox/api) [:i.far.fa-compress-arrows-alt]
+       (contains? tgs 'zenbox/op) [:i.far.fa-compress-arrows-alt]
+       (contains? tgs 'zenbox/store)  [:i.far.fa-database]
+       (contains? tgs 'zen-ui/tag-view)  [:i.far.fa-eye]
+       (contains? tgs 'zen/schema) [:i.far.fa-file-check])]))
 
 
 
