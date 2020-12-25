@@ -26,14 +26,14 @@
     "Errors"]
    [:div {:class (c [:space-y 2] :divide-y)}
     (for [[res errs] model]
-      [:div {:class (c [:mt 4])}
+      [:div {:class (c [:mt 4]) :key (str res)}
        (if res
          [:a {:href (app.layout/symbol-url res) :class (c :block :text-xl [:text :blue-600] :bold [:py 2] :border-b)}
           (str res)]
          [:b "Global"])
        [:div {:class (c [:space-y 1] :divide-y)}
         (for [err errs]
-          [:div {:key (:resource err) :class (c :flex [:space-x 3])}
+          [:div {:key (or (:resource err) (:message err)) :class (c :flex [:space-x 3])}
            (when-let [tp (:type err)]
              [:div {:class (c [:w 40] [:text :gray-500] {:font-weight 400})} tp])
            [:div
@@ -46,8 +46,6 @@
              (when (:schema err)
                [:div
                 [:b "by: "]
-                (pr-str (:schema err))])]]
-           
-           ])]])]])
+                (pr-str (:schema err))])]]])]])]])
 
 (pages/reg-page ctx page)

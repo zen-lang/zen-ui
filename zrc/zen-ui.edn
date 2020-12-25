@@ -73,4 +73,11 @@
   :title "RPC"
   :tag zenbox/rpc}
 
+ view-for-api
+ {:zen/tags #{tag-view}
+  :width -1
+  :slag "api"
+  :title "API"
+  :tag zenbox/api}
+
  }

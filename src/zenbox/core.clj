@@ -76,6 +76,10 @@
   [ctx view model]
   model)
 
+(defmethod view 'zen-ui/view-for-api
+  [ctx view model]
+  (zenbox.web.router/get-api-paths ctx model))
+
 (defmethod view :default [ctx view model]
   {:status :error
    :message (str "No impl for " (:zen/name view))})

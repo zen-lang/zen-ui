@@ -276,6 +276,11 @@
   [:div {:class (c [:p 4])}
    [edn-edit]])
 
+(defmethod render-view 'zen-ui/view-for-api
+  [_]
+  [:div {:class (c [:p 4])}
+   [edn-edit]])
+
 (defmethod render-view 'zen-ui/view-for-rpc
   [{d :data}]
   [:div "RPC"])

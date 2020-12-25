@@ -107,3 +107,7 @@
                  (apis-paths ctx (select-keys srv [:apis]) [] acc))
                [])
        (sort-by (fn [x] [(:uri x) (:method x)]))))
+
+(defn get-api-paths [ctx api]
+  (->> (apis-paths ctx api [] [])
+       (sort-by (fn [x] [(:uri x) (:method x)]))))
