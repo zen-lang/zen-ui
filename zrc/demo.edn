@@ -34,7 +34,6 @@
   :operation zenbox/sql
   :db db}
 
-
  user
  {:zen/tags #{zen/schema}
   :type zen/map
