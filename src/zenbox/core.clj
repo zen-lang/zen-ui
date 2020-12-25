@@ -5,7 +5,8 @@
    [zenbox.storage.core]
    [zenbox.pg.core]
    [zenbox.rpc :refer [rpc-call]]
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [zenbox.web.router :refer [get-all-paths]]))
 
 (defmulti operation (fn [ctx op req] (:operation op)))
 
@@ -102,7 +103,7 @@
 
 (defmethod rpc-call 'zen-ui/endpoints
   [ctx rpc req]
-  {:result {:endpoints (zen/get-tag ctx 'zenbox/api)}})
+  {:result {:endpoints (get-all-paths ctx)}})
 
 (defn dispatch-op [ctx route request]
   (if route

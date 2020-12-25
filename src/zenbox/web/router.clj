@@ -72,15 +72,6 @@
 (defn route [ctx server request]
   (match ctx (:request-method request) (:uri request) (select-keys server [:apis])))
 
-(defn api-iter [api path]
-  (mapv (fn [[k v]]
-                         (println "KV1: " k v)
-            (cond
-              (keyword? k) {:path path :method k}
-              (contains? v :apis) (println "AA: " (:apis v))
-              :else nil;; (api-iter v (conj k path))
-              )) api))
-
 (defn apis-paths [ctx api path acc]
   (let [acc (if-let [apis (api :apis)]
               (->> apis
@@ -93,13 +84,18 @@
          (reduce (fn [acc [k v]]
                    (cond
                      (contains? #{:GET :POST :PUT :PATCH :OPTION :DELETE} k)
-                     (conj acc (merge v {:method k :uri (str "/" (str/join "/" path))}))
+                     (conj acc (merge v {:path path
+                                         :method k
+                                         :uri (str "/" (str/join "/" path))}))
 
                      (string? k)
                      (apis-paths ctx v (conj path k) acc)
 
                      (and (vector? k) (keyword? (first k)))
-                     (apis-paths ctx v (conj path (str "{" (subs (str (first k)) 1) "}")) acc)
+                     (apis-paths ctx v (conj path
+                                             (first k)
+                                             ;; (str "{" (subs (str (first k)) 1) "}")
+                                             ) acc)
 
                      :else acc))
                  acc))))
