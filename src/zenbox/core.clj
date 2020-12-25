@@ -128,7 +128,7 @@
         new-ns (assoc ns nm {:zen/tags #{} :zen/desc "docs here..."})]
     (write-ns (:zen/file ns) new-ns)
     (zen/read-ns ctx ns-nm)
-    {:result {:symbol snm}}))
+    {:result {:name snm}}))
 
 (defmethod rpc-call 'zen-ui/navigation
   [ctx rpc req]

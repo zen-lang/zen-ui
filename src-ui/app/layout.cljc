@@ -186,12 +186,21 @@
 (defn prompt [title]
   #?(:cljs (js/prompt title)))
 
+(zrf/defx new-symbol-added
+  [{db :db} [_ {data :data}]]
+  {:zen/rpc [{:method 'zen-ui/navigation
+              :path [:navigation]}
+             {:method 'zen-ui/errors
+              :path [::errors]}]
+   :zframes.routing/redirect {:uri (symbol-url (:name data))}})
+
 (zrf/defx add-new-symbol
   [{db :db} [_ ns]]
   (let [nm (prompt "Enter model name:")]
     {:zen/rpc {:method 'zen-ui/create-symbol
                :params {:ns (symbol ns)
-                        :name (symbol nm)}}}))
+                        :name (symbol nm)}
+               :success {:event new-symbol-added}}}))
 
 (zrf/defview navigation [nav-model]
   [:div 

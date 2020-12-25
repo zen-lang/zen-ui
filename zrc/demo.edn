@@ -4,6 +4,7 @@
   :type zen/map,
   :keys {:email {:type zen/string}, :name {:type zen/string}}},
  sql-op {:zen/tags #{zenbox/rpc}, :db db, :operation zenbox/sql},
+ test {:zen/tags #{zen/schema}, :zen/desc "docs here..."},
  index-op
  {:response {:headers {"location" "static/index.html"}, :status 302},
   :zen/tags #{zenbox/op},
@@ -37,6 +38,7 @@
   :result #{patient},
   :storage patient-store},
  :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
+ reorg {:zen/tags #{zen/schema}, :zen/desc "Just reorg"},
  api
  {:zen/tags #{zenbox/api},
   "zen" {:apis #{zen-api}},
@@ -46,6 +48,7 @@
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/ensure-stores,
   :dbs #{db}},
+ ups {:zen/tags #{}, :zen/desc "docs here..."},
  read-user
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/read,
