@@ -40,6 +40,7 @@
   (do
     (zenbox/stop ctx)
     (def ctx (zen/new-context))
+
     (zen/read-ns ctx 'demo)
     (zenbox/start ctx)
     )
@@ -62,7 +63,6 @@
 
   (zen/get-symbol ctx 'zen-ui/errors)
 
-  
   (:zen/file (second (first (:ns @ctx))))
 
 

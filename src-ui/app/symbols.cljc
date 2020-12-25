@@ -331,6 +331,7 @@
   [{:keys [result-error result-loading result model] :as data}]
   [:div
    [:div "Method: " (get model :zen/name)]
+   [:dev "Description: " (get model :zen/desc)]
 
    [:div "Params:"]
    [anti.textarea/zf-textarea

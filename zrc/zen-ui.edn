@@ -10,7 +10,8 @@
   :zen/desc "Return errors"}
 
  get-symbol
- {:zen/tags #{zenbox/rpc}}
+ {:zen/tags #{zenbox/rpc}
+  :zen/desc "Return symbol model"}
 
  rpc-methods
  {:zen/tags #{zenbox/rpc}
