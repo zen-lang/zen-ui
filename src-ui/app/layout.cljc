@@ -2,7 +2,13 @@
   (:require [zframes.re-frame :as zrf]
             [stylo.core :refer [c]]
             [anti.checkbox]
+            [clojure.set]
             [clojure.string :as str]))
+
+(zrf/defx
+  tags-filter-changed
+  [{db :db} [_ _ v]]
+  {:zframes.routing/merge-global-params {:tags (str/join ","(mapv str v))}})
 
 (zrf/defx ctx
   [{db :db} [_ phase {params :params}]]
@@ -12,7 +18,18 @@
 
     (or (= :init phase) (= :params phase))
     {:zen/rpc {:method 'zen-ui/navigation
-               :path [:navigation]}}))
+               :path [:navigation]}
+     :db (assoc-in db [::tags :schema :tags] {:on-change [tags-filter-changed]})}))
+
+(zrf/defx tags-ctx
+  [{db :db} [_ phase v]]
+  (let [tgs (when v (->>
+                     (str/split v #",")
+                     (map symbol)
+                     (into #{})))]
+    (cond
+      (= :deinit phase) {}
+      (= :init phase) {:db (assoc-in db [::tags :value :tags] tgs)})))
 
 (zrf/defs current-uri [db]
  (:uri (first (:route/history db))))
@@ -67,12 +84,21 @@
    [:span {:class (c {:font-size "9px"})} (:title item)]])
 
 
-
 (zrf/defs nav-model
   [db _]
-  (let [tgs (get-in db [::tags :value :tags])]
-    (println "tgs" tgs)
-    (get-in db [:navigation :data :symbols])))
+  (let [ftgs (get-in db [::tags :value :tags])]
+    (->> (get-in db [:navigation :data :symbols])
+         (sort-by first)
+         (mapv (fn [[k x]]
+                 [k (if (contains? ftgs 'any)
+                      x
+                      (update
+                       x :symbols
+                       (fn [syms]
+                         (->> syms
+                              (filter (fn [[_ {tgs :zen/tags}]]
+                                        (seq (clojure.set/intersection ftgs tgs))))
+                              (sort-by first)))))])))))
 
 (zrf/defs tags
   [db _]
@@ -85,7 +111,7 @@
   (url ["symbols" (str/replace (str sym) #"/" ":")]))
 
 (defn symbol-icon [v]
-  (let [tgs (:tags v)]
+  (let [tgs (:zen/tags v)]
     [:div {:class
            (str/join " "
                      (mapv name
@@ -107,19 +133,7 @@
          (contains? tgs 'zen/valueset)  "V"
          (contains? tgs 'zen/schema) "S")]))
 
-(defn render-tree [syms]
-  [:div {:class (c )}
-   (for [[k v] (sort-by first syms)]
-     [:div {:key k}
-      [:a {:href (when-let [nm (:name v)] (symbol-url nm))
-             :class (c :block :flex :items-baseline :align-baseline [:py 0.25] [:text :gray-700]
-                       [:hover [:text :gray-900]])}
-       (when-let [tgs (:tags v)]
-         (symbol-icon v))
-       [:div (str k)]]
-      (when-let [ch (and (:children v))]
-        [:div {:class (c [:pl 3])}
-         (render-tree ch)])])])
+
 
 (zrf/defview main-menu [tags]
   [:div {:class (c :absolute :flex :overflow-y-auto [:space-x 8] [:bg :white] [:inset 0] [:left 14] [:z 1001] [:p 10])}
@@ -158,7 +172,22 @@
       :title    "Logout"}]]])
 
 (zrf/defview navigation [nav-model]
-  (render-tree nav-model))
+  [:div 
+   (for [[k v] nav-model]
+     [:div {:key k}
+      [:div {:class (c :flex [:space-x 2] :items-center)}
+       [:i.fa.fa-box {:class (c :text-xs [:text :gray-500])}]
+       [:div {:class (c {:font-weight "400"})} (str k)]]
+      [:div {:class (c [:pl 3])}
+       (for [[mk m] (->> (:symbols v)
+                         (sort-by first))]
+         [:a {:href (symbol-url (:zen/name m))
+              :key mk
+              :class (c :block :flex :items-baseline :align-baseline [:py 0.25] [:text :gray-700]
+                        [:hover [:text :gray-900]])}
+          (when (:zen/tags m)
+            (symbol-icon m))
+          [:div (str mk)]])]])])
 
 (defn layout [content]
   [:div {:class (c :flex :items-stretch :h-screen)}

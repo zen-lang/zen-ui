@@ -3,7 +3,7 @@
             [re-frame.core :as rf]
             [route-map.core :as route-map]))
 
-(def global-contexts {})
+(def global-contexts {:tags :app.layout/tags-ctx})
 
 (def routes {:context :app.layout/ctx
              :. :app.dashboard/ctx

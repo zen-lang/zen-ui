@@ -77,7 +77,8 @@
                      :global-query-string search)
        :dispatch-n (global-context-events
                      (get-in db [::db :global-contexts])
-                     (:global-params db) params)})))
+                     (:global-params db)
+                     params)})))
 
 
 (defn parse-fragment [fragment]
@@ -236,6 +237,7 @@
 
 (zrf/defe ::merge-global-params
   [params]
+  (println "mgp" params)
   (let [{:keys [fragment global-params]} @app-db]
     #?(:cljs
        (js/setTimeout

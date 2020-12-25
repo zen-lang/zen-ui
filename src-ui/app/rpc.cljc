@@ -6,6 +6,7 @@
             [anti.select]
             [anti.textarea]
             [anti.button]
+            [app.symbols]
             [app.routes :refer [href]]
             [clojure.string :as str]))
 
@@ -52,6 +53,6 @@
     [anti.button/button {:type "primary" :on-click #(zrf/dispatch [call-rpc])} "Send"]
 
     (when result
-      [:div (pr-str result)])]])
+      [:div (app.symbols/edn result)])]])
 
 (pages/reg-page ctx page)

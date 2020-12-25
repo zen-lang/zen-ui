@@ -77,11 +77,11 @@
   [ctx rpc req]
   (let [symbols (->>
                  (:symbols @ctx)
-                 (sort-by first)
-                 (reduce (fn [acc [nm data]]
-                           (let [pth (interpose :children (str/split (str nm) #"[./]"))]
-                             (assoc-in acc pth {:name nm :path pth :tags (:zen/tags data) :desc (:zen/desc data)})))
-                         {}))
+                 (reduce (fn [acc [nm m]]
+                           (println "nm" nm m)
+                           (let [[ns snm] (str/split (str nm) #"/" 2)]
+                             (assoc-in acc [ns :symbols snm] (assoc (select-keys m [:zen/name :zen/tags :zen/desc])
+                                                                    :name snm)))) {}))
         tags (zen/get-tag ctx 'zen/tag)]
     {:result {:symbols symbols :tags tags}}))
 
