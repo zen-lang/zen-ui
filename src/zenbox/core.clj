@@ -86,11 +86,11 @@
     {:result {:symbols symbols :tags tags}}))
 
 (defmethod rpc-call 'demo/insert-patient
-  [ctx req]
+  [ctx rpc req]
   {:result (storage/handle ctx req)})
 
 (defmethod rpc-call 'demo/read-patient
-  [ctx req]
+  [ctx rpc req]
   {:result (storage/handle ctx req)})
 
 (defmethod rpc-call 'storage/handle
@@ -102,8 +102,45 @@
   {:result {:methods (zen/get-tag ctx 'zenbox/rpc)}})
 
 (defmethod rpc-call 'zen-ui/endpoints
-  [ctx req]
+  [ctx rpc req]
   {:result {:endpoints (zen/get-tag ctx 'zenbox/api)}})
+
+(defmulti create-store (fn [ctx store] (:engine store)))
+
+(defn table-ddl [tbl]
+  (format "
+  CREATE TABLE IF NOT EXISTS \"%s\" (
+    id serial primary key,
+    ts timestamptz DEFAULT current_timestamp,
+    resource jsonb
+  ); " tbl))
+
+(defmethod create-store 'zenbox/jsonb-store
+  [ctx {tbl :table-name db-nm :db}]
+  (if-let [db (get-in @ctx [:services db-nm])]
+    {:result (zenbox.pg.core/exec! db (table-ddl tbl))}
+    {:error (str "No connection to " db-nm)}))
+
+(defmethod rpc-call 'zenbox/sql
+  [ctx {db-nm :db} {q :query}]
+  (if-let [db (get-in @ctx [:services db-nm])]
+    {:result (zenbox.pg.core/query db q)}
+    {:error {:message (str "No connection to " db-nm)}}))
+
+(defmethod rpc-call 'zenbox/ensure-stores
+  [ctx rpc req]
+  (let [dbs (:dbs rpc)
+        stores (->> (zen/get-tag ctx 'zenbox/store)
+                    (mapv (fn [s] (zen/get-symbol ctx s)))
+                    (mapv (fn [store]
+                            (when (contains? dbs (:db store))
+                              (create-store ctx store)))))]
+    {:result {:dbs dbs :stores stores}}))
+
+(defn rpc [ctx req]
+  (if-let [op (zen/get-symbol ctx (:method req))]
+    (rpc-call ctx op (:params req))
+    {:error {:message (str "No operation defined for " (:method req))}}))
 
 (defn dispatch-op [ctx route request]
   (if route

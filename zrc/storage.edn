@@ -17,15 +17,13 @@
 
  zen-storage
  {:zen/tags #{storage}
-  :kind "zen"
-  }
+  :kind "zen"}
 
  pgstore-config
  {:zen/tags #{storage-impl}
   :persist zen-storage
   :tags #{storage pgstore}
-  :namespace "storage"
-  }
+  :namespace "storage"}
 
  create-pgstore
  {:zen/tags #{operation-impl}

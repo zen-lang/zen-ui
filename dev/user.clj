@@ -36,17 +36,21 @@
 
 (comment
 
-
-  (def ctx (zen/new-context))
-
-  (zen/read-ns ctx 'demo)
+  (do
+    (def ctx (zen/new-context))
+    (zen/read-ns ctx 'demo)
+    )
 
   (zenbox/start ctx)
 
   (zenbox/stop ctx)
 
-  (zenbox/rpc-call ctx {:method 'zen-ui/get-symbol
+  (zenbox/rpc ctx {:method 'zen-ui/get-symbol
                         :params {:name 'zen-ui/tag-view}})
+
+  (zenbox/rpc ctx {:method 'demo/ensure-stores})
+  (zenbox/rpc ctx {:method 'demo/sql-op
+                   :params {:query "select * from \"users\""}})
 
   (restart-ui)
 
