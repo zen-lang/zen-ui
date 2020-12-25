@@ -20,6 +20,7 @@
             [app.rpc]
             [app.symbols]
             [app.rest]
+            [app.errors]
             #?(:cljs [app.reagent])
             [app.reframe]))
 

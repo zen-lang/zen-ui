@@ -85,6 +85,10 @@
         tags (zen/get-tag ctx 'zen/tag)]
     {:result {:symbols symbols :tags tags}}))
 
+(defmethod rpc-call 'zen-ui/errors
+  [ctx rpc req]
+  {:result {:errors (:errors @ctx)}})
+
 (defmethod rpc-call 'zen-ui/rpc-methods
   [ctx rpc req]
   {:result {:methods (zen/get-tag ctx 'zenbox/rpc)}})

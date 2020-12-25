@@ -17,8 +17,11 @@
     (= :deinit phase) {}
 
     (or (= :init phase) (= :params phase))
-    {:zen/rpc {:method 'zen-ui/navigation
-               :path [:navigation]}
+    {:zen/rpc [{:method 'zen-ui/navigation
+                :path [:navigation]}
+               {:method 'zen-ui/errors
+                :path [::errors]}]
+
      :db (assoc-in db [::tags :schema :tags] {:on-change [tags-filter-changed]})}))
 
 (zrf/defx tags-ctx
@@ -81,7 +84,7 @@
                     (c [:opacity 100] {:border-left "2px solid #ffd23f"}))
                   (:class item)]}
    [:i.fal {:class [(c [:my 1] :text-xl) (:icon item)]}]
-   [:span {:class (c {:font-size "9px"})} (:title item)]])
+   [:span {:class [(c {:font-size "9px"}) (:title-class item)]} (:title item)]])
 
 
 (zrf/defs nav-model
@@ -146,7 +149,9 @@
                     (mapv (fn [x] {:label (str x) :value x}))
                     (into [{:label "Any" :value 'any}]))}]]])
 
-(zrf/defview quick-menu [toggle-menu current-uri]
+(zrf/defsp errors [::errors :data :errors])
+
+(zrf/defview quick-menu [toggle-menu current-uri errors]
   [:<>
    (when toggle-menu [main-menu])
    [:div {:class (c [:z 100] :overflow-hidden :flex :flex-col
@@ -164,6 +169,13 @@
            (assoc :active (and (not toggle-menu) (= current-uri (:href i))))
            (update :on-click (fn [f] (comp #(zrf/dispatch [::toggle-menu false])
                                        (or f identity)))))])
+    (when-not (empty? errors)
+      [quick-item
+       {:title    (count errors)
+        :icon     "fa-bug"
+        :title-class (c :rounded-b [:px 1] [:bg :red-700] [:text :white])
+        :href "#/errors"
+        :active   toggle-menu}])
     [:div {:class (c :flex-1)}]
     [quick-item
      {:key   "logout"
@@ -173,6 +185,7 @@
 
 (zrf/defview navigation [nav-model]
   [:div 
+   [:div {:class (c :bold [:py 1] [:my 2] :border-b)} "Models"]
    (for [[k v] nav-model]
      [:div {:key k}
       [:div {:class (c :flex [:space-x 2] :items-center)}
@@ -196,7 +209,8 @@
    [:div {:class (c :flex-1 :flex :overflow-y-auto)}
     [:div {:class (c [:px 4] [:py 2] [:w 80] [:w-min 80]
                      :text-sm [:text :gray-700] [:bg :gray-100]
-                     :overflow-y-auto)}
+                     :overflow-y-auto
+                     {:border-right "1px solid #ddd"})}
      [:div {:class (c [:pl 2])}
       [navigation]]]
     [:div {:class (c :flex-1 :overflow-y-auto)} content]]])

@@ -5,6 +5,10 @@
  {:zen/tags #{zenbox/rpc}
   :zen/desc "Return navigation for zen models"}
 
+ errors
+ {:zen/tags #{zenbox/rpc}
+  :zen/desc "Return errors"}
+
  get-symbol
  {:zen/tags #{zenbox/rpc}
   :params {:type zen/map

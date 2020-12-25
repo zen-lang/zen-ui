@@ -1,5 +1,5 @@
 {ns demo
- import #{zenbox zen-ui fhir storage}
+ import #{zenbox zen-ui}
 
  server
  {:zen/tags #{zenbox/server}
@@ -61,8 +61,8 @@
  {:zen/tags #{zenbox/rpc}
   :storage storage/patient-store
   :operation storage/delete}
- create-pgstore
 
+ create-pgstore
  {:zen/tags #{zenbox/rpc}
   :storage storage/postgres-config-store
   :operation storage/insert}

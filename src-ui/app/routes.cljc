@@ -8,6 +8,7 @@
 (def routes {:context :app.layout/ctx
              :. :app.dashboard/ctx
              "rpc" {:. :app.rpc/ctx}
+             "errors" {:. :app.errors/ctx}
              "symbols" {[:name] {:. :app.symbols/ctx}}
              "rest" {:. :app.rest/ctx}})
 
