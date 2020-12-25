@@ -99,7 +99,7 @@
 
 (defmethod rpc-call 'zen-ui/rpc-methods
   [ctx rpc req]
-  {:result {:methods (zen/get-tag ctx 'zenbox/rpc)}})
+  {:result {:methods (sort (zen/get-tag ctx 'zenbox/rpc))}})
 
 (defmethod rpc-call 'zen-ui/endpoints
   [ctx rpc req]
