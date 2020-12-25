@@ -2,12 +2,12 @@
   (:require
    [zenbox.web.core :as web]
    [zen.core :as zen]
-   [zenbox.storage :as storage]
+   [zenbox.storage.core]
    [zenbox.pg.core]
+   [zenbox.rpc :refer [rpc-call]]
    [clojure.string :as str]))
 
 (defmulti operation (fn [ctx op req] (:operation op)))
-(defmulti rpc-call (fn [ctx rpc req] (or (:operation rpc) (:zen/name rpc))))
 
 (defmethod operation 'zenbox/json-rpc
   [ctx op req]
@@ -85,18 +85,6 @@
         tags (zen/get-tag ctx 'zen/tag)]
     {:result {:symbols symbols :tags tags}}))
 
-(defmethod rpc-call 'demo/insert-patient
-  [ctx rpc req]
-  {:result (storage/handle ctx req)})
-
-(defmethod rpc-call 'demo/read-patient
-  [ctx rpc req]
-  {:result (storage/handle ctx req)})
-
-(defmethod rpc-call 'storage/handle
-  [ctx rpc req]
-  (storage/handle ctx rpc (:params req)))
-
 (defmethod rpc-call 'zen-ui/rpc-methods
   [ctx rpc req]
   {:result {:methods (zen/get-tag ctx 'zenbox/rpc)}})
@@ -171,8 +159,8 @@
    (mapv (fn [sym] (zen/get-symbol ctx sym))))
 
   (resolve-views ctx #{'zen/schema})
-  
   (operation
+
    ctx
    {:operation 'zenbox/json-rpc}
    {:resource
