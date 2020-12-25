@@ -76,6 +76,14 @@
   [ctx view model]
   model)
 
+(defmethod view 'zen-ui/view-for-validate
+  [ctx view model]
+  model)
+
+(defmethod view 'zen-ui/view-for-validate
+  [ctx view model]
+  model)
+
 (defmethod view 'zen-ui/view-for-api
   [ctx view model]
   (zenbox.web.router/get-api-paths ctx model))

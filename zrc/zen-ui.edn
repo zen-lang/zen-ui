@@ -80,4 +80,11 @@
   :title "API"
   :tag zenbox/api}
 
+ view-for-validate
+ {:zen/tags #{tag-view}
+  :width -1
+  :slag "validate"
+  :title "Validate"
+  :tag zen/schema}
+
  }

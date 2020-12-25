@@ -105,12 +105,28 @@
 
 (defmethod render-view 'zen-ui/view-for-tag
   [{d :data}]
-  [:div {:class (c [:py 4] :divide-y)}
-   (for [{nm :name desc :desc tgs :tags} (->> d (sort-by #(str (:name %))))]
-     [:div {:key nm :class (c :flex [:space-x 4] [:py 1])}
-      [:a {:href (symbol-url nm) :class (c :block :whitespace-no-wrap [:text :blue-600])}
-       (str nm)]
-      [:div {:class (c [:text :gray-700] :text-sm)} desc]])])
+  [:div  {:class (c [:p 4])}
+   [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Models tagged:"]
+   [:div {:class (c [:py 4] :divide-y)}
+    (for [{nm :name desc :desc tgs :tags} (->> d (sort-by #(str (:name %))))]
+      [:div {:key nm :class (c :flex [:space-x 4] [:py 1])}
+       [:a {:href (symbol-url nm) :class (c :block :whitespace-no-wrap [:text :blue-600])}
+        (str nm)]
+       [:div {:class (c [:text :gray-700] :text-sm)} desc]])]])
+
+(defmethod render-view 'zen-ui/view-for-validate
+  [{d :data}]
+  [:div  {:class (c [:p 2])}
+   [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Validate"]
+   [:style ".monaco {width: 90%; min-height: 200px; border: 1px solid #ddd;}"]
+   [app.monaco/monaco
+    {:class (c :block [:w 100] [:h 100])
+     :on-change (fn [x] (zrf/dispatch [:on-validate-change x]))
+     :value "{}"}]
+   [:br]
+   [:hr]
+   [:br]
+   [anti.button/button {:type "primary" :on-click #(zrf/dispatch [:validate])} "Cancel"]])
 
 
 (declare render-schema)
@@ -258,7 +274,8 @@
    [app.monaco/monaco
     {:class (c :block [:w 100] [:h 100])
      :on-change (fn [x] (zrf/dispatch [on-model-change x]))
-     :value editor-model}]])
+     :value editor-model}]
+   ])
 
 (zrf/defsp edit-mode [::edit-mode])
 (zrf/defx set-edit-mode
@@ -294,9 +311,21 @@
    [edn-edit]])
 
 (defmethod render-view 'zen-ui/view-for-api
-  [_]
-  [:div {:class (c [:p 4])}
-   [edn-edit]])
+  [{d :data}]
+  [:div
+   [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Routes"]
+   [:div {:class (c [:p 4] [:space-y 2] :divide-y)}
+    (for [r d]
+      [:div {:key (:operation r)
+             :class (c :flex [:space-x 2])}
+       [:div {:class (c {:font-weight "600"})} (name (:method r))]
+       [:div {:class (c )} (str "/" (str/join "/" (:path r)))]
+       [:div {:class (c [:text :gray-600])}
+        [:a {:href (symbol-url (:operation r))}
+         (str (:operation r))]]])]
+
+   [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Test routes"]
+   ])
 
 (defmethod render-view 'zen-ui/view-for-rpc
   [{:keys [result-error result-loading result model] :as data}]

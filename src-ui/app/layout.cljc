@@ -93,7 +93,7 @@
     (->> (get-in db [:navigation :data :symbols])
          (sort-by first)
          (mapv (fn [[k x]]
-                 [k (if (contains? ftgs 'any)
+                 [k (if (or (contains? ftgs 'any) (empty? ftgs))
                       x
                       (update
                        x :symbols
@@ -121,7 +121,7 @@
                            [(c [:w 3] [:h 3] [:mr 1]
                                {:border-radius "100%" :font-size "9px" :text-align "center" :line-height "0.75rem"})
                             (cond
-                              (contains? tgs 'zen/type)     (c  [:text :green-700])
+                              (contains? tgs 'zen/type)     (c  [:bg :green-300])
                               (contains? tgs 'zenbox/rpc)     (c  [:text :red-700])
                               (contains? tgs 'zenbox/store)     (c  [:text :blue-700])
                               (contains? tgs 'zen/tag)      (c  [:text :yellow-600])
@@ -132,7 +132,7 @@
            :title (str/join " " tgs)}
      (cond
        (contains? tgs 'zen/tag) [:i.fas.fa-tag]
-       (contains? tgs 'zen/type)  "T"
+       (contains? tgs 'zen/type)  "t"
        (contains? tgs 'zenbox/rpc) [:i.fad.fa-phone-rotary]
        (contains? tgs 'zen/valueset)  "V"
        (contains? tgs 'zenbox/api) [:i.far.fa-compress-arrows-alt]
