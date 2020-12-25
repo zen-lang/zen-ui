@@ -48,7 +48,8 @@
 (zrf/defview page [model result result-error result-loading]
   [:div {:class (c [:p 2])}
    [:div {:class (c [:space-y 3] [:w 200] {:margin "0 auto"})}
-    [:h2 "RPC Console"]
+    [:h2 {:class (c :text-xl [:py 2] [:my 2] :border-b)}
+     "RPC Console"]
 
     [:div "Method:"]
     [anti.select/zf-select {:placeholder "Method"
@@ -64,7 +65,10 @@
       [:div "loading..."])
 
     (when result-error
-      [:div (app.symbols/edn result-error)])
+      [:div {:class (c [:text :red-500])}
+       (if (string? result-error)
+         result-error
+         (app.symbols/edn result-error))])
 
     (when (and result (nil? result-error))
       [:div (app.symbols/edn result)])]])

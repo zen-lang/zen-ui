@@ -1,14 +1,20 @@
 (ns zenbox.core
   (:require
-   [zenbox.web.core :as web]
+   [clojure.java.io :as io]
+   [clojure.pprint]
+   [clojure.string :as str]
+   [clojure.walk]
+   [edamame.core]
    [zen.core :as zen]
-   [zenbox.storage.core]
    [zenbox.pg.core]
    [zenbox.rpc :refer [rpc-call]]
-   [clojure.string :as str]
+   [zenbox.storage.core]
+   [zenbox.web.core :as web]
    [zenbox.web.router :refer [get-all-paths]]))
 
-(defmulti operation (fn [ctx op req] (:operation op)))
+(defmulti operation (fn [ctx op req]
+                      (println "REQ: " op)
+                      (:operation op)))
 
 (defn rpc [ctx req]
   (if-let [op (zen/get-symbol ctx (:method req))]
@@ -25,15 +31,27 @@
 
 (defmethod operation 'zenbox/json-rpc
   [ctx op req]
-  (let [resource (:resource req)
-        resp (rpc ctx resource)]
-    (if (:result resp)
-      {:status 200 :body resp}
-      {:status 422 :body resp})))
+  (try
+    (let [resource (:resource req)
+          resp (rpc ctx resource)]
+      (if (:result resp)
+        {:status 200 :body resp}
+        {:status 422 :body resp}))
+    (catch Exception e
+      {:status 500 :body {:error (str e)}}))
+  )
 
 (defmethod operation 'zenbox/response
   [ctx op req]
   (:response op))
+
+(defmethod operation 'zen-ui/get-tags
+  [ctx op req]
+  {:status 200 :body {:tags "123"}})
+
+(defmethod operation 'zen-ui/get-symbols
+  [ctx op req]
+  {:status 200 :body {:tags "123"}})
 
 ;; (defmethod rpc-call 'zen-ui/all-tags
 ;;   [ctx rpc req]
@@ -80,6 +98,25 @@
   (let [model (zen/get-symbol ctx (symbol nm))
         views (resolve-views ctx  model)]
     {:result {:views views :model model}}))
+
+(defn fix-local-syms [ns model]
+  (clojure.walk/postwalk (fn [x]
+                           (if (and (symbol? x) (= (str ns) (namespace x)))
+                             (symbol (name x))
+                             x)) model))
+
+;; (fix-local-syms 'myns {:a 'myns/x :b 'ons/y})
+
+(defmethod rpc-call 'zen-ui/update-symbol
+  [ctx rpc-def {model :params}]
+  (let [[nsm snm] (mapv symbol (str/split (str (:zen/name model)) #"/" 2))
+        ns (get-in @ctx [:ns nsm])
+        new-ns (assoc ns snm (fix-local-syms nsm (dissoc model [:zen/name :zen/file])))]
+    (with-open [w (clojure.java.io/writer (:zen/file model))]
+      (binding [*out* w]
+        (clojure.pprint/pprint new-ns)))
+    (zen/read-ns ctx nsm)
+    (rpc ctx {:method 'zen-ui/get-symbol :params {:name (:zen/name model)}})))
 
 (defmethod rpc-call 'zen-ui/navigation
   [ctx rpc req]
@@ -134,6 +171,7 @@
    (mapv (fn [sym] (zen/get-symbol ctx sym))))
 
   (resolve-views ctx #{'zen/schema})
+
 
 
   )

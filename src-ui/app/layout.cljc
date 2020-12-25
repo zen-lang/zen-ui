@@ -188,7 +188,7 @@
    [:div {:class (c :bold [:py 1] [:my 2] :border-b)} "Models"]
    (for [[k v] nav-model]
      [:div {:key k}
-      [:div {:class (c :flex [:space-x 2] :items-center)}
+      [:div {:class (c :flex [:space-x 2] :items-center :border-b [:mt 1])}
        [:i.fa.fa-box {:class (c :text-xs [:text :gray-500])}]
        [:div {:class (c {:font-weight "400"})} (str k)]]
       [:div {:class (c [:pl 3])}
