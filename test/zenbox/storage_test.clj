@@ -1,5 +1,6 @@
 (ns zenbox.storage-test
   (:require [zenbox.core :as zenbox]
+            [zenbox.storage.core]
             [zen.core :as zen]
             [zen.store :as zen-extra]
             [clojure.test :refer [deftest is]]
@@ -41,7 +42,7 @@
              :type "require",
              :path [:id],
              :schema ['fhir/patient :confirms 'fhir/resource :require]}]})
-  (matcho/match
+  #_(matcho/match
    (operation-wrapper ctx {:method 'demo/read-patient :params {}})
    {:error [{:message ":resourceType is required",
              :type "require",
@@ -52,11 +53,11 @@
              :path [:id],
              :schema ['fhir/resource :require]}]
     })
-  (matcho/match
+  #_(matcho/match
    (operation-wrapper ctx {:method 'demo/delete-patient :params sample-valid-patinet})
    {:error [{:message "resource doesn't exists"}]})
 
-  (matcho/match
+  #_(matcho/match
    (operation-wrapper ctx {:method 'demo/delete-patient :params {}})
    {:error
     [{:message ":resourceType is required",
@@ -72,15 +73,14 @@
 
   (matcho/match
    (operation-wrapper ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house
-                                                                  :kind "postgres"
                                                                   :user "superadmin"
                                                                   :password "123"
                                                                   :host "clickhouse-db"
+                                                                  :database "zenbox"
                                                                   :port 5432}})
 
    {:result
-    {:kind "postgres",
-     :user "superadmin",
+    {:user "superadmin",
      :password "123",
      :host "clickhouse-db",
      :port 5432,
@@ -89,17 +89,16 @@
     })
 
   (matcho/match (zen/get-symbol ctx 'storage/click-house)
-                {:kind "postgres",
-                 :user "superadmin",
+                {:user "superadmin",
                  :password "123",
                  :host "clickhouse-db",
                  :port 5432,
+                 :database "zenbox"
                  ;; :zen/tags #{'storage/storage 'storage/pgstore},
                  :zen/name 'storage/click-house})
 
   (matcho/match
-   (operation-wrapper ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house
-                                                                  :kind "postgres"}})
+   (operation-wrapper ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house}})
 
    {:error
     [{:message ":password is required",
@@ -113,6 +112,10 @@
      {:message ":host is required",
       :type "require",
       :path [:host],
+      :schema ['storage/pgstore :require]}
+     {:message ":database is required",
+      :type "require",
+      :path [:database],
       :schema ['storage/pgstore :require]}
      {:message ":user is required",
       :type "require",

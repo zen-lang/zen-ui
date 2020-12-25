@@ -23,4 +23,16 @@
                 :every {:type zen/map
                         :keys {:family {:type zen/string}
                                :given {:type zen/vector :every {:type zen/string}}}}}
-         :birthDate {:type zen/datetime}}}}
+         :birthDate {:type zen/datetime}}}
+
+
+ user
+ {:zen/tags #{zen/schema}
+  :type zen/map
+  :keys {:name {:type zen/string}
+         :email {:type zen/string}}}
+
+ new-user
+ {:zen/tags #{zen/schema}
+  :type zen/map
+  :require #{:email}}}

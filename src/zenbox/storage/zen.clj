@@ -2,17 +2,17 @@
   (:require [zen.core :as zen]
             [zen.store :as zen-extra]))
 
-(defmulti handle (fn [ctx rpc req] (:operation rpc)))
+(defmulti handle (fn [ctx rpc storage req] (:operation rpc)))
 
 (defmethod handle
   'storage/insert
-  [ctx rpc params]
-  (let [{:keys [tags namespace schema]} rpc
+  [ctx rpc storage params]
+  (let [{:keys [resource namespace schema]} storage
         name (:zen/name params)
-        resource (dissoc params :zen/name)
+        body (dissoc params :zen/name)
         nmsps (get-in @ctx [:ns (symbol namespace)])
-        {:keys [errors] :as val-result} (zen/validate ctx [schema] resource)
+        {:keys [errors] :as val-result} (zen/validate ctx [schema] body)
         ]
     (if (empty? errors)
-      {:result (zen-extra/load-symbol ctx nmsps name (assoc resource :zen/tags tags))}
+      {:result (zen-extra/load-symbol ctx nmsps name (merge body resource))}
       {:error errors})))

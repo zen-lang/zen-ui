@@ -1,92 +1,47 @@
 {ns storage
  import #{fhir}
 
- storage-schema
- {:zen/tags #{zen/schema}
-  :type zen/map
-  :keys {:kind {:type zen/string}}}
+ db
+ {:zen/tags #{zenbox/service}
+  :service zenbox/pg
+  :port 5451
+  :host "localhost"
+  :user "postgres"
+  :password "postgres"
+  :database "mybox"}
 
- storage
- {:zen/tags #{zen/tag}}
+ user-store
+ {:zen/tags #{storage/store}
+  :engine storage/jsonb-store
+  :db db
+  :table-name "users"
+  :schemas #{fhir/user}
+  :indices {}}
 
- storage-impl
- {:zen/tags #{zen/tag}}
+patient-store
+ {:zen/tags #{storage/store}
+  :schema fhir/patient
+  :engine storage/atom
+  :path [:fhir]
+  }
 
- operation-impl
- {:zen/tags #{zen/tag}}
 
- zen-storage
- {:zen/tags #{storage}
-  :kind "zen"}
-
- pgstore-config
- {:zen/tags #{storage-impl}
-  :persist zen-storage
-  :tags #{storage pgstore}
-  :namespace "storage"}
-
- create-pgstore
- {:zen/tags #{operation-impl}
-  :storage pgstore-config
-  :schema pgstore
-  :operation insert-op}
+  postgres-config-store
+  {:zen/tags #{storage/store}
+   :schema storage/pgstore
+   :engine storage/zen
+   :resource {:zen/tags #{sotrage/storage storage/pgstore}
+              :service zenbox/pg}
+   :namespace "storage"}
 
  pgstore
  {:zen/tags #{zen/tags zen/schema}
   :type zen/map
-  :require #{:user :password :host :port}
-  :confirms #{storage-schema}
+  :require #{:user :password :host :port :database}
   :keys
   {:user {:type zen/string}
    :password {:type zen/string}
    :host {:type zen/string}
-   :port {:type zen/number}}}
-
- postgres
- {:zen/tags #{storage pgstore}
-  :kind "postgres"
-  :user "root"
-  :password "password"
-  :host "db"
-  :port 5432}
-
- atom-storage
- {:zen/tags #{storage}
-  :kind "atom"
-  }
-
-
- inmemory
- {:zen/tags #{storage-impl}
-  :persist atom-storage}
-
- practitioner-on-disk
- {:zen/tags #{storage-impl}
-  :table "practitioner"
-  :kind "jsobn"
-  :persist postgers}
-
- insert-patient
- {:zen/tags #{operation-impl}
-  :storage inmemory
-  :schema fhir/patient
-  :operation insert-op}
-
- read-patient
- {:zen/tags #{operation-impl}
-  :storage inmemory
-  :schema fhir/resource
-  :operation read-op}
-
- delete-patient
- {:zen/tags #{operation-impl}
-  :storage inmemory
-  :schema fhir/resource
-  :operation delete-op}
-
- insert-practitioner
- {:zen/tags #{operation-impl}
-  :storage practitioner-on-disk
-  :schema fhir/practitioner
-  :operation insert-op}
- }
+   :port {:type zen/number}
+   :database {:type zen/string}}}
+}
