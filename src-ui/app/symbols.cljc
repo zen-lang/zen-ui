@@ -3,12 +3,14 @@
             [zframes.re-frame :as zrf]
             [stylo.core :refer [c]]
             [anti.button]
+            [anti.textarea]
             #?(:cljs  [cljs.pprint])
             #?(:cljs  [cljs.reader])
             [app.routes :refer [href]]
             [app.layout :refer [symbol-url url]]
             [app.monaco]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [clojure.edn]))
 
 
 (defn cls [& xs]
@@ -26,7 +28,6 @@
               ::editable (pp (dissoc (:model data) :zen/name :zen/file :zen/errors))
               ::edit-mode false)})
 
-
 (zrf/defx ctx
   [{db :db} [_ phase {params :params :as opts}]]
   (cond
@@ -35,12 +36,13 @@
     (= :params phase) {:db (assoc-in db [::view] (:view params))}
 
     (= :init phase)
-    {:db (assoc-in db [::view] (:view params))
+    {:db (-> db
+             (assoc-in [::view] (:view params))
+             (assoc-in [::db :rpc] nil))
      :zen/rpc {:method 'zen-ui/get-symbol
                :params {:name (str/replace (:name opts) #":" "/")}
                :success {:event on-loaded}
-               :path [::db]
-               }}))
+               :path [::db]}}))
 
 (zrf/defs model [db _]
   (get-in db [::db :data]))
@@ -91,7 +93,12 @@
 (zrf/defs view-data
   [db & _]
   (let [v (get-view db)]
-    (get-in db [::db :data :views v])))
+    (merge
+     (get-in db [::db :data :views v])
+     {:model (get-in db [::db :data :model])
+      :result-loading (get-in db [::db :rpc :result :loading])
+      :result (get-in db [::db :rpc :result :data])
+      :result-error (get-in db [::db :rpc :result :error])})))
 
 (defmulti render-view (fn [{v :view}] (:zen/name v)))
 
@@ -271,6 +278,16 @@
      [:br]
      [anti.button/button {:type "default" :on-click #(zrf/dispatch [set-edit-mode true])} "Edit"]]))
 
+
+(zrf/defx call-rpc
+  [{db :db} & _]
+  (let [method (get-in db [::db :data :model :zen/name])
+        params (clojure.edn/read-string (get-in db [::db :rpc :form :value :params]))]
+    {:zen/rpc {:method (symbol method)
+               :path [::db :rpc :result]
+               :params params}}))
+
+
 (defmethod render-view 'zen-ui/view-for-edn
   [_]
   [:div {:class (c [:p 4])}
@@ -282,8 +299,28 @@
    [edn-edit]])
 
 (defmethod render-view 'zen-ui/view-for-rpc
-  [{d :data}]
-  [:div "RPC"])
+  [{:keys [result-error result-loading result model] :as data}]
+  [:div
+   [:div "Method: " (get model :zen/name)]
+
+   [:div "Params:"]
+   [anti.textarea/zf-textarea
+    {:opts {:zf/root [::db :rpc :form] :zf/path [:params]}}]
+
+   [anti.button/button {:class (c [:mt 2])
+                        :type "primary" :on-click #(zrf/dispatch [call-rpc])} "Send"]
+
+   (when result-loading
+     [:div "loading..."])
+
+   (when result-error
+     [:div {:class (c [:text :red-500])}
+      (if (string? result-error)
+        result-error
+        (app.symbols/edn result-error))])
+
+   (when (and result (nil? result-error))
+     [:div (app.symbols/edn result)])])
 
 (defmethod render-view :default
   [{d :data}]
@@ -309,7 +346,6 @@
        (:title v)])
     [:div {:class (c [:w 4] :border-b)}]]
    (render-view view-data)
-
    ])
 
 (pages/reg-page ctx page)
