@@ -11,7 +11,7 @@
 
 (defmethod dispatch-store 'storage/atom
   [ctx rpc storage params]
-    (atom-storage/handle ctx rpc storage params))
+  (atom-storage/handle ctx rpc storage params))
 
 (defmethod dispatch-store 'storage/jsonb-store
   [ctx rpc storage params]
