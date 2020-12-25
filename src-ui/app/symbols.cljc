@@ -329,9 +329,9 @@
 
 (defmethod render-view 'zen-ui/view-for-rpc
   [{:keys [result-error result-loading result model] :as data}]
-  [:div
-   [:div "Method: " (get model :zen/name)]
-   [:dev "Description: " (get model :zen/desc)]
+  [:div {:class (c [:space-y 2])}
+   [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Call " (get model :zen/name)]
+   [:div (get model :zen/desc)]
 
    [:div "Params:"]
    [anti.textarea/zf-textarea
@@ -340,17 +340,22 @@
    [anti.button/button {:class (c [:mt 2])
                         :type "primary" :on-click #(zrf/dispatch [call-rpc])} "Send"]
 
+   [:div ]
    (when result-loading
      [:div "loading..."])
 
    (when result-error
-     [:div {:class (c [:text :red-500])}
+     [:div {:class (c [:text :red-500] [:mt 4])}
       (if (string? result-error)
         result-error
-        (app.symbols/edn result-error))])
+        [:div
+         [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b [:text :red-600])} "Error:"]
+         (app.symbols/edn result-error)])])
 
    (when (and result (nil? result-error))
-     [:div (app.symbols/edn result)])])
+     [:div
+      [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Result:"]
+      (app.symbols/edn result)])])
 
 (defmethod render-view :default
   [{d :data}]
