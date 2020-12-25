@@ -4,6 +4,7 @@
   :type zen/map,
   :keys {:email {:type zen/string}, :name {:type zen/string}}},
  sql-op {:zen/tags #{zenbox/rpc}, :db db, :operation zenbox/sql},
+ entity {:zen/tags #{zen/sch}, :zen/desc "docs here..."},
  test {:zen/tags #{zen/schema}, :zen/desc "docs here..."},
  index-op
  {:response {:headers {"location" "static/index.html"}, :status 302},
@@ -97,7 +98,7 @@
   :operation zenbox/search,
   :params {:name {}},
   :storage user-store},
- org {:zen/tags #{zen/schema}, :zen/desc "docs xx..."},
+ org {:strange-key "here", :zen/tags #{zen/schema}, :zen/desc "vvv"},
  patient-store
  {:path [:fhir],
   :zen/tags #{zenbox/atom-store zenbox/store},

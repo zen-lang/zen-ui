@@ -3,8 +3,11 @@
             [zenbox.pg.core]
             [zen.core :as zen]))
 
-(defmulti handle (fn [ctx rpc storage params] (:operation rpc)))
 
+(defmulti handle (fn [ctx rpc storage params] (:operation rpc)))
+(defmethod handle :default
+  [ctx rpc storage params]
+  {:error {:message (str rpc "is not impl")}})
 
 (defmulti create-store (fn [ctx store] (:engine store)))
 
@@ -15,6 +18,12 @@
     ts timestamptz DEFAULT current_timestamp,
     resource jsonb
   ); " tbl))
+
+
+(defn get-conn [ctx store]
+  (if-let [db (get-in @ctx [:services (:db store)])]
+    db
+    {:error (str "No connection for " (:db store))}))
 
 (defmethod create-store 'zenbox/jsonb-store
   [ctx {tbl :table-name db-nm :db}]
@@ -27,6 +36,13 @@
   (if-let [db (get-in @ctx [:services db-nm])]
     {:result (zenbox.pg.core/query db q)}
     {:error {:message (str "No connection to " db-nm)}}))
+
+(defmethod handle 'zenbox/insert
+  [ctx rpc store params]
+  (let [db (get-conn ctx store)]
+    {:result {:st store
+              :db (pr-str db)
+              :prm params}}))
 
 (defmethod rpc-call 'zenbox/ensure-stores
   [ctx rpc req]

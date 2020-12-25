@@ -20,9 +20,11 @@
   (let [storage (zen/get-symbol ctx (:storage rpc))]
     (dispatch-store ctx rpc storage params)))
 
+
 (defmethod rpc-call 'zenbox/insert
   [ctx rpc {params :params}]
   (let [storage (zen/get-symbol ctx (:storage rpc))]
+    (println "Insert" storage params)
     (dispatch-store ctx rpc storage params)))
 
 (defmethod rpc-call 'zenbox/read
