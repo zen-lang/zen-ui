@@ -40,7 +40,7 @@
              :type "require",
              :path [:id],
              :schema ['fhir/patient :confirms 'fhir/resource :require]}]})
-  #_(matcho/match
+  (matcho/match
    (zenbox/rpc ctx {:method 'demo/read-patient :params {}})
    {:error [{:message ":resourceType is required",
              :type "require",
@@ -51,11 +51,17 @@
              :path [:id],
              :schema ['fhir/resource :require]}]
     })
-  #_(matcho/match
+
+  (matcho/match
    (zenbox/rpc ctx {:method 'demo/delete-patient :params sample-valid-patinet})
    {:error [{:message "resource doesn't exists"}]})
 
-  #_(matcho/match
+  (matcho/match
+   (zenbox/rpc ctx {:method 'demo/read-patient :params sample-valid-patinet})
+   {:error [{:message "resource doesn't exists"}]})
+
+
+  (matcho/match
    (zenbox/rpc ctx {:method 'demo/delete-patient :params {}})
    {:error
     [{:message ":resourceType is required",
@@ -66,8 +72,6 @@
       :type "require",
       :path [:id],
       :schema ['fhir/resource :require]}]})
-
-
 
   (matcho/match
    (zenbox/rpc ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house

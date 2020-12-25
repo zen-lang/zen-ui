@@ -9,12 +9,23 @@
 
 (defmulti operation (fn [ctx op req] (:operation op)))
 
+
+
+(defn rpc [ctx req]
+  (if-let [op (zen/get-symbol ctx (:method req))]
+    (if-let [schema (:schema op)]
+      (let  [{:keys [errors]} (zen/validate ctx [schema] (:params req))]
+        (if (empty? errors)
+          (rpc-call ctx op req)
+          {:error errors}))
+      (rpc-call ctx op req))
+    {:error {:message (str "No operation defined for " (:method req))}}))
+
+
 (defmethod operation 'zenbox/json-rpc
   [ctx op req]
   (let [resource (:resource req)
-        method (:method resource)
-        rpc (zen/get-symbol ctx (symbol method))
-        resp (rpc-call ctx rpc resource)]
+        resp (rpc ctx resource)]
     (if (:result resp)
       {:status 200 :body resp}
       {:status 422 :body resp})))
@@ -92,11 +103,6 @@
 (defmethod rpc-call 'zen-ui/endpoints
   [ctx rpc req]
   {:result {:endpoints (zen/get-tag ctx 'zenbox/api)}})
-
-(defn rpc [ctx req]
-  (if-let [op (zen/get-symbol ctx (:method req))]
-    (rpc-call ctx op req)
-    {:error {:message (str "No operation defined for " (:method req))}}))
 
 (defn dispatch-op [ctx route request]
   (if route

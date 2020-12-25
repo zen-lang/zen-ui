@@ -55,14 +55,16 @@
  read-patient
  {:zen/tags #{zenbox/rpc}
   :storage storage/patient-store
+  :schema fhir/resource
   :operation storage/read}
 
  delete-patient
  {:zen/tags #{zenbox/rpc}
   :storage storage/patient-store
+  :schema fhir/resource
   :operation storage/delete}
- create-pgstore
 
+ create-pgstore
  {:zen/tags #{zenbox/rpc}
   :storage storage/postgres-config-store
   :operation storage/insert}
