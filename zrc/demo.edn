@@ -21,7 +21,7 @@
  sql-op
  {:zen/tags #{zenbox/rpc}
   :operation zenbox/sql
-  :db db}
+  :db storage/db}
 
  create-user
  {:zen/tags #{zenbox/rpc}

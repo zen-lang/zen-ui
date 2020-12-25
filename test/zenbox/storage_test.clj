@@ -7,33 +7,31 @@
             [matcho.core :as matcho]))
 
 
-(defn operation-wrapper [ctx json-rpc]
-  (:body (zenbox/operation ctx {:operation 'zenbox/json-rpc} {:resource json-rpc})))
-
 (deftest test-storage
   (def ctx (zen/new-context))
   (zen/read-ns ctx 'demo)
 
   (def sample-valid-patinet {:resourceType "Patient" :id "patient"})
 
+
   (matcho/match
-   (operation-wrapper ctx {:method 'demo/insert-patient :params sample-valid-patinet})
+   (zenbox/rpc ctx {:method 'demo/insert-patient :params sample-valid-patinet})
    {:result sample-valid-patinet})
 
   (matcho/match
-   (operation-wrapper ctx {:method 'demo/read-patient :params sample-valid-patinet})
+   (zenbox/rpc ctx {:method 'demo/read-patient :params sample-valid-patinet})
    {:result sample-valid-patinet})
 
   (matcho/match
-   (operation-wrapper ctx {:method 'demo/delete-patient :params sample-valid-patinet})
+   (zenbox/rpc ctx {:method 'demo/delete-patient :params sample-valid-patinet})
    {:result sample-valid-patinet})
 
   (matcho/match
-   (operation-wrapper ctx {:method 'demo/read-patient :params sample-valid-patinet})
+   (zenbox/rpc ctx {:method 'demo/read-patient :params sample-valid-patinet})
    {:result nil})
 
   (matcho/match
-   (operation-wrapper ctx {:method 'demo/insert-patient :params {}})
+   (zenbox/rpc ctx {:method 'demo/insert-patient :params {}})
    {:error [{:message ":resourceType is required",
              :type "require",
              :path [:resourceType],
@@ -43,7 +41,7 @@
              :path [:id],
              :schema ['fhir/patient :confirms 'fhir/resource :require]}]})
   #_(matcho/match
-   (operation-wrapper ctx {:method 'demo/read-patient :params {}})
+   (zenbox/rpc ctx {:method 'demo/read-patient :params {}})
    {:error [{:message ":resourceType is required",
              :type "require",
              :path [:resourceType],
@@ -54,11 +52,11 @@
              :schema ['fhir/resource :require]}]
     })
   #_(matcho/match
-   (operation-wrapper ctx {:method 'demo/delete-patient :params sample-valid-patinet})
+   (zenbox/rpc ctx {:method 'demo/delete-patient :params sample-valid-patinet})
    {:error [{:message "resource doesn't exists"}]})
 
   #_(matcho/match
-   (operation-wrapper ctx {:method 'demo/delete-patient :params {}})
+   (zenbox/rpc ctx {:method 'demo/delete-patient :params {}})
    {:error
     [{:message ":resourceType is required",
       :type "require",
@@ -72,7 +70,7 @@
 
 
   (matcho/match
-   (operation-wrapper ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house
+   (zenbox/rpc ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house
                                                                   :user "superadmin"
                                                                   :password "123"
                                                                   :host "clickhouse-db"
@@ -98,7 +96,7 @@
                  :zen/name 'storage/click-house})
 
   (matcho/match
-   (operation-wrapper ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house}})
+   (zenbox/rpc ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house}})
 
    {:error
     [{:message ":password is required",
