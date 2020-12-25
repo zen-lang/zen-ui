@@ -19,10 +19,27 @@
   </head>
   <body>
     <div id="app"><div class="spinner">Loading...</div></div>
+
     <!-- workaround until https://github.com/cljsjs/packages/pull/2093 gets merged -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.0.0/dist/fuse.js"></script> -->
 	  <!-- <script src="/static/editor/main.bundle.js"></script> -->
     <!-- <script src="/static/assets/antd.min.js"></script> -->
+
+
     <script src="/static/js/main.js"></script>
-  </body>
+		<script src="./monaco-editor/min/vs/loader.js"></script>
+		<script>
+		 require.config({ paths: { vs: './monaco-editor/min/vs' } });
+
+		 require(['vs/editor/editor.main'], function () {
+         console.log("monaco is loaded")
+
+				 /* var editor = monaco.editor.create(document.getElementById('container'), {
+          *     value: '{:a 1}',
+					  language: 'clojure'
+				    });
+          */
+		 });
+		</script>
+ </body>
 </html>
