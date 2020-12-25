@@ -23,7 +23,7 @@
 (zrf/defx on-loaded
   [{db :db} [_ {data :data}]]
   {:db (assoc db
-              ::editable (pp (:model data))
+              ::editable (pp (dissoc (:model data) :zen/name :zen/file :zen/errors))
               ::edit-mode false)})
 
 
@@ -235,10 +235,11 @@
   {:db (assoc db ::editable value)})
 
 (zrf/defx save [{db :db} _]
-  (let [val (get db ::editable)]
-    (println (read-edn val))
+  (let [val (get db ::editable)
+        orig (get-in db [::db :data :model])]
     {:zen/rpc {:method 'zen-ui/update-symbol
-               :params  (read-edn val)
+               :params  {:data (read-edn val)
+                         :name (:zen/name orig)}
                :success {:event on-loaded}
                :path [::db]}}))
 

@@ -26,12 +26,17 @@
   :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
   :zen/desc "My desc",
   :zen/name patient},
+ demo/org {:zen/tags #{}, :zen/desc "xx here..."},
  read-patient
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/read,
+  :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
   :params #{fhir/reference},
+  :zen/desc "Hello!",
+  :zen/name read-patient,
   :result #{patient},
   :storage patient-store},
+ :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
  api
  {:zen/tags #{zenbox/api},
   "zen" {:apis #{zen-api}},
@@ -89,6 +94,7 @@
   :operation zenbox/search,
   :params {:name {}},
   :storage user-store},
+ org {:zen/tags #{zen/schema}, :zen/desc "docs xx..."},
  patient-store
  {:path [:fhir],
   :zen/tags #{zenbox/atom-store zenbox/store},

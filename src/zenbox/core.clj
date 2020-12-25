@@ -16,14 +16,12 @@
 
 (defn rpc [ctx req]
   (if-let [op (zen/get-symbol ctx (:method req))]
-    (do
-      (println "op" op)
-      (if-let [schemas (:params op)]
-        (let  [{:keys [errors]} (zen/validate ctx schemas (:params req))]
-          (if (empty? errors)
-            (rpc-call ctx op req)
-            {:error errors}))
-        (rpc-call ctx op req)))
+    (if-let [schemas (:params op)]
+      (let  [{:keys [errors]} (zen/validate ctx schemas (:params req))]
+        (if (empty? errors)
+          (rpc-call ctx op req)
+          {:error errors}))
+      (rpc-call ctx op req))
     {:error {:message (str "No operation defined for " (:method req))}}))
 
 
@@ -36,6 +34,7 @@
         {:status 200 :body resp}
         {:status 422 :body resp}))
     (catch Exception e
+      (println "ERROR:" e)
       {:status 500 :body {:error (str e)}}))
   )
 
@@ -105,23 +104,37 @@
 
 ;; (fix-local-syms 'myns {:a 'myns/x :b 'ons/y})
 
+(defn write-ns [f x]
+  (println "write" f)
+  (with-open [w (clojure.java.io/writer f)]
+    (binding [*out* w]
+      (clojure.pprint/pprint x))))
+
 (defmethod rpc-call 'zen-ui/update-symbol
-  [ctx rpc-def {model :params}]
-  (let [[nsm snm] (mapv symbol (str/split (str (:zen/name model)) #"/" 2))
+  [ctx rpc-def {{model :data nm :name} :params}]
+  (let [[nsm jnm] (mapv symbol (str/split (str nm) #"/" 2))
+        orig (zen/get-symbol ctx nm)
         ns (get-in @ctx [:ns nsm])
-        new-ns (assoc ns snm (fix-local-syms nsm (dissoc model [:zen/name :zen/file])))]
-    (with-open [w (clojure.java.io/writer (:zen/file model))]
-      (binding [*out* w]
-        (clojure.pprint/pprint new-ns)))
+        new-ns (assoc ns jnm (fix-local-syms nsm (dissoc model [:zen/name :zen/file])))]
+    (println "Write" nm (fix-local-syms nsm (dissoc model [:zen/name :zen/file])))
+    (write-ns (:zen/file orig) new-ns)
     (zen/read-ns ctx nsm)
-    (rpc ctx {:method 'zen-ui/get-symbol :params {:name (:zen/name model)}})))
+    (rpc ctx {:method 'zen-ui/get-symbol :params {:name nm}})))
+
+(defmethod rpc-call 'zen-ui/create-symbol
+  [ctx rpc-def {{ns-nm :ns nm :name} :params}]
+  (let [snm (symbol (name ns-nm) (name nm))
+        ns (get-in @ctx [:ns ns-nm])
+        new-ns (assoc ns nm {:zen/tags #{} :zen/desc "docs here..."})]
+    (write-ns (:zen/file ns) new-ns)
+    (zen/read-ns ctx ns-nm)
+    {:result {:symbol snm}}))
 
 (defmethod rpc-call 'zen-ui/navigation
   [ctx rpc req]
   (let [symbols (->>
                  (:symbols @ctx)
                  (reduce (fn [acc [nm m]]
-                           (println "nm" nm m)
                            (let [[ns snm] (str/split (str nm) #"/" 2)]
                              (assoc-in acc [ns :symbols snm] (assoc (select-keys m [:zen/name :zen/tags :zen/desc])
                                                                     :name snm)))) {}))

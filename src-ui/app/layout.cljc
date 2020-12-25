@@ -189,8 +189,9 @@
 (zrf/defx add-new-symbol
   [{db :db} [_ ns]]
   (let [nm (prompt "Enter model name:")]
-    {:zen/rpc {:method 'zen-ui/create-symbol}}
-    (println "Create symbol" nm)))
+    {:zen/rpc {:method 'zen-ui/create-symbol
+               :params {:ns (symbol ns)
+                        :name (symbol nm)}}}))
 
 (zrf/defview navigation [nav-model]
   [:div 

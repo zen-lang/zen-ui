@@ -10,8 +10,7 @@
   :zen/desc "Return errors"}
 
  get-symbol
- {:zen/tags #{zenbox/rpc}
-  :params {}}
+ {:zen/tags #{zenbox/rpc}}
 
  rpc-methods
  {:zen/tags #{zenbox/rpc}
@@ -24,6 +23,10 @@
  update-symbol
  {:zen/tags #{zenbox/rpc}
   :zen/desc "Update symbol in ns"}
+
+ create-symbol
+ {:zen/tags #{zenbox/rpc}
+  :zen/desc "Create symbol in ns"}
 
  ;; views for models
  tag-view {:zen/tags #{zen/tag zen/schema}

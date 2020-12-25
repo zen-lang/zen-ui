@@ -62,7 +62,8 @@
 
   (zen/get-symbol ctx 'zen-ui/errors)
 
-  (def model-to-update (zen/get-symbol ctx 'demo/insert-patient))
+  
+  (:zen/file (second (first (:ns @ctx))))
 
 
   )
