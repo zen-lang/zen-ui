@@ -56,6 +56,11 @@
  search
  {:zen/tags #{rpc}}
 
+ query
+ {:zen/tags #{rpc}}
+
+ validate
+ {:zen/tags #{rpc}}
 
  json-rpc
  {:zen/tags #{op} :zen/desc "JSON RPC endpoint"}

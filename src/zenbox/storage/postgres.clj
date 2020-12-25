@@ -1,13 +1,13 @@
 (ns zenbox.storage.postgres
   (:require [zenbox.rpc :refer [rpc-call]]
-            [zenbox.pg.core]
+            [zenbox.pg.core :as pg]
             [zen.core :as zen]))
 
 
 (defmulti handle (fn [ctx rpc storage params] (:operation rpc)))
 (defmethod handle :default
   [ctx rpc storage params]
-  {:error {:message (str rpc "is not impl")}})
+  {:error {:message (str "pg: " (:operation rpc) " is not impl")}})
 
 (defmulti create-store (fn [ctx store] (:engine store)))
 
@@ -28,21 +28,57 @@
 (defmethod create-store 'zenbox/jsonb-store
   [ctx {tbl :table-name db-nm :db}]
   (if-let [db (get-in @ctx [:services db-nm])]
-    {:result (zenbox.pg.core/exec! db (table-ddl tbl))}
+    {:result (pg/exec! db (table-ddl tbl))}
     {:error (str "No connection to " db-nm)}))
 
 (defmethod rpc-call 'zenbox/sql
   [ctx {db-nm :db} {q :query}]
   (if-let [db (get-in @ctx [:services db-nm])]
-    {:result (zenbox.pg.core/query db q)}
+    {:result (pg/query db q)}
     {:error {:message (str "No connection to " db-nm)}}))
 
+
 (defmethod handle 'zenbox/insert
+  [ctx rpc store {res :resource}]
+  (if-let [errs (and (:schemas store)
+                     (let [{errs :errors} (zen/validate ctx (:schemas store) res)]
+                       (when-not (empty? errs)
+                         errs)))]
+    {:error {:errors errs}}
+    (let [db (get-conn ctx store)
+          query {:ql/type :pg/insert
+                 :into (keyword (:table-name store))
+                 :value (cond->
+                            {:resource [:pg/jsonb (dissoc res :id)]}
+                          (:id res) (assoc :id res))
+                 :returning :*}
+          result (let [res (first (pg/query db query))]
+                   (merge (:resource res) (dissoc res :resource)))]
+      {:result result})))
+
+(defmethod handle 'zenbox/search
   [ctx rpc store params]
-  (let [db (get-conn ctx store)]
-    {:result {:st store
-              :db (pr-str db)
-              :prm params}}))
+  (let [db (get-conn ctx store)
+        query {:ql/type :pg/select
+               :select :*
+               :from (keyword (:table-name store))}
+        result (->>
+                (pg/query db query)
+                (mapv (fn [res] (merge (:resource res) (dissoc res :resource)))))]
+    {:result {:resources result}}))
+
+(defmethod handle 'zenbox/read
+  [ctx rpc store {id :id}]
+  (let [db (get-conn ctx store)
+        query {:ql/type :pg/select
+               :select :*
+               :from (keyword (:table-name store))
+               :where [:= :id id]}
+        result (->>
+                (pg/query db query)
+                (mapv (fn [res] (merge (:resource res) (dissoc res :resource))))
+                (first))]
+    {:result {:resource result}}))
 
 (defmethod rpc-call 'zenbox/ensure-stores
   [ctx rpc req]

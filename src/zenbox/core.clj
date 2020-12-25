@@ -72,6 +72,10 @@
   [ctx view model]
   model)
 
+(defmethod view 'zen-ui/view-for-rpc
+  [ctx view model]
+  model)
+
 (defmethod view 'zen-ui/view-for-edn
   [ctx view model]
   model)
@@ -121,6 +125,11 @@
   (with-open [w (clojure.java.io/writer f)]
     (binding [*out* w]
       (clojure.pprint/pprint x))))
+
+(defmethod rpc-call 'zenbox/validate
+  [ctx rpc-def {{sch :schema data :data} :params}]
+  (let [res (zen/validate ctx #{sch} data)]
+    {:result (select-keys res [:errors])}))
 
 (defmethod rpc-call 'zen-ui/update-symbol
   [ctx rpc-def {{model :data nm :name} :params}]

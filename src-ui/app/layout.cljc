@@ -138,6 +138,7 @@
        (contains? tgs 'zenbox/api) [:i.far.fa-compress-arrows-alt]
        (contains? tgs 'zenbox/op) [:i.far.fa-compress-arrows-alt]
        (contains? tgs 'zenbox/store)  [:i.far.fa-database]
+       (contains? tgs 'zenbox/pg)  [:i.fad.fa-database]
        (contains? tgs 'zen-ui/tag-view)  [:i.far.fa-eye]
        (contains? tgs 'zen/schema) [:i.far.fa-file-check])]))
 

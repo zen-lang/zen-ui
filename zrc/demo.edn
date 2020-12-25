@@ -1,45 +1,41 @@
 {import #{zenbox fhir zen-ui},
- user
- {:zen/tags #{zen/schema},
-  :type zen/map,
-  :keys {:email {:type zen/string}, :name {:type zen/string}}},
  sql-op {:zen/tags #{zenbox/rpc}, :db db, :operation zenbox/sql},
  entity {:zen/tags #{zen/sch}, :zen/desc "docs here..."},
- test {:zen/tags #{zen/schema}, :zen/desc "docs here..."},
  index-op
  {:response {:headers {"location" "static/index.html"}, :status 302},
   :zen/tags #{zenbox/op},
   :operation zenbox/response},
- new-user
+ user
+ {:zen/tags #{zen/schema},
+  :type zen/map,
+  :keys {:email {:type zen/string}, :name {:type zen/string}}},
+ user-new
  {:zen/tags #{zen/schema},
   :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
   :require #{:email},
+  :confirms #{user}
   :type zen/map,
   :zen/desc "desc",
-  :zen/name new-user},
- create-user
+  :zen/name user-new},
+ user-create
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/insert,
-  :schemas #{new-user},
-  :storage user-store},
+  :schemas #{user-new},
+  :storage user-store
+  :placeholder {:resource {:name "Ivan"}}},
  patient
  {:confirms #{fhir/patient},
   :zen/tags #{zen/schema},
   :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
   :zen/desc "My desc",
   :zen/name patient},
- demo/org {:zen/tags #{}, :zen/desc "xx here..."},
- read-patient
+ patient-read
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/read,
-  :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
   :params #{fhir/reference},
   :zen/desc "Hello!",
-  :zen/name read-patient,
   :result #{patient},
   :storage patient-store},
- :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
- reorg {:zen/tags #{zen/schema}, :zen/desc "Just reorg"},
  api
  {:zen/tags #{zenbox/api},
   "zen" {:apis #{zen-api}},
@@ -49,25 +45,20 @@
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/ensure-stores,
   :dbs #{db}},
- ups {:zen/tags #{}, :zen/desc "docs here..."},
- read-user
+ user-read
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/read,
-  :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
   :zen/desc "Read User Operation",
-  :zen/name read-user,
+  :placeholder {:id 1}
   :storage user-store},
  json-rpc-op {:zen/tags #{zenbox/op}, :operation zenbox/json-rpc},
- insert-patient
+ patient-create
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/insert,
-  :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
-  :extra 2,
-  :zen/name insert-patient,
   :storage patient-store},
  db
  {:service zenbox/pg,
-  :zen/tags #{zenbox/service},
+  :zen/tags #{zenbox/service zenbox/pg},
   :password "postgres",
   :port 5451,
   :host "localhost",
@@ -93,22 +84,19 @@
   :engine zenbox/jsonb-store,
   :indices {},
   :table-name "users"},
- search-user
+ user-search
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/search,
-  :params {:name {}},
   :storage user-store},
- org {:strange-key "here", :zen/tags #{zen/schema}, :zen/desc "vvv"},
+ org {:zen/tags #{zen/schema}, :zen/desc "vvv"},
  patient-store
  {:path [:fhir],
   :zen/tags #{zenbox/atom-store zenbox/store},
   :schemas #{patient},
   :engine zenbox/atom-store},
- delete-patient
+ patient-delete
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/delete,
   :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
   :params #{fhir/reference},
-  :zen/desc "Slow down ",
-  :zen/name delete-patient,
   :storage patient-store}}

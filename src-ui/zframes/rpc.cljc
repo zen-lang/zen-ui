@@ -18,7 +18,7 @@
   #?(:cljs
      (do
        (js/console.groupCollapsed (str "RPC: " (:method opts)))
-       (js/console.table (clj->js (:params opts)))
+       (js/console.log (clj->js (:params opts)))
        (js/console.groupEnd)
 
        (if (and debounce path (not force))
@@ -32,7 +32,7 @@
                                   (rf/dispatch [(:event event) (merge event {:request opts} payload)])))]
 
            (when path
-             (swap! db assoc-in (conj path :loading) true))
+             (swap! db assoc-in path {:loading true}))
 
            (-> (js/fetch "/json-rpc"
                          (clj->js {:method "post"

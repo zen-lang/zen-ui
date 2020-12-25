@@ -88,4 +88,11 @@
   :title "Validate"
   :tag zen/schema}
 
+ view-for-pg
+ {:zen/tags #{tag-view}
+  :width -1
+  :slag "pg"
+  :title "pg"
+  :tag zenbox/pg}
+
  }

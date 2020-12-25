@@ -20,6 +20,24 @@
     (->> (group-by :resource errs)
          (sort-by first))))
 
+(defn render-errors [errs]
+  [:div {:class (c [:space-y 1] :divide-y)}
+   (for [err errs]
+     [:div {:key (or (:resource err) (:message err)) :class (c :flex [:space-x 3])}
+      (when-let [tp (:type err)]
+        [:div {:class (c [:w 40] [:text :gray-500] {:font-weight 400})} tp])
+      [:div
+       [:div (:message err)]
+       [:div
+        (when (:path err)
+          [:div
+           [:b "in: "]
+           (pr-str (:path err))])
+        (when (:schema err)
+          [:div
+           [:b "by: "]
+           (pr-str (:schema err))])]]])])
+
 (zrf/defview page [model]
   [:div {:class (c [:p 8])}
    [:div {:class (c :text-xl [:py 1] [:my 2] :border-b)}
@@ -31,21 +49,6 @@
          [:a {:href (app.layout/symbol-url res) :class (c :block :text-xl [:text :blue-600] :bold [:py 2] :border-b)}
           (str res)]
          [:b "Global"])
-       [:div {:class (c [:space-y 1] :divide-y)}
-        (for [err errs]
-          [:div {:key (or (:resource err) (:message err)) :class (c :flex [:space-x 3])}
-           (when-let [tp (:type err)]
-             [:div {:class (c [:w 40] [:text :gray-500] {:font-weight 400})} tp])
-           [:div
-            [:div (:message err)]
-            [:div
-             (when (:path err)
-               [:div
-                [:b "in: "]
-                (pr-str (:path err))])
-             (when (:schema err)
-               [:div
-                [:b "by: "]
-                (pr-str (:schema err))])]]])]])]])
+       (render-errors errs)])]])
 
 (pages/reg-page ctx page)

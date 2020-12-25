@@ -12,7 +12,7 @@
       :component-did-mount
       (fn [this]
         (let [^js/Object e (.create ^js/Object monacoe (dom/dom-node this)
-                                    #js{:language "clojure"
+                                    #js{:language (or (:lang props) "clojure")
                                         :minimap #js{:enabled false}
                                         :value (:value props)
                                         :lineNumbers "off"

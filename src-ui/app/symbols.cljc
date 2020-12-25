@@ -10,6 +10,7 @@
             [app.layout :refer [symbol-url url]]
             [app.monaco]
             [clojure.string :as str]
+            [app.errors]
             [clojure.edn]))
 
 
@@ -31,7 +32,7 @@
 (zrf/defx ctx
   [{db :db} [_ phase {params :params :as opts}]]
   (cond
-    (= :deinit phase) {}
+    (= :deinit phase) {:db (dissoc db ::db ::rpc-params ::rpc-result)}
 
     (= :params phase) {:db (assoc-in db [::view] (:view params))}
 
@@ -114,19 +115,55 @@
         (str nm)]
        [:div {:class (c [:text :gray-700] :text-sm)} desc]])]])
 
+
+(zrf/defsp validate-query [::validate-query])
+(zrf/defsp validate-result [::validate-result])
+
+
+(zrf/defx call-validate
+  [{db :db} & _]
+  (let [q (read-edn (get-in db [::validate-query]))
+        id (get-in db [::db :data :model :zen/name])]
+    {:zen/rpc {:method 'zenbox/validate
+               :params {:data (or q {}) :schema id}
+               :path [::validate-result]}}))
+
+(zrf/defx validate-query-change
+  [{db :db} [_ v]]
+  {:db (assoc db ::validate-query v)})
+
+(zrf/defview validate-result-view
+  [validate-result]
+  [:div
+   (when-let [err (:error validate-result)]
+     [:div {:class (c [:text :red-500] [:mt 4])}
+      [:div
+       [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b [:text :red-600])} "Error:"]
+       (app.symbols/edn err)]])
+
+   (when-let [res (:data validate-result)]
+     [:div
+      [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Result:"]
+      (app.errors/render-errors (:errors res))])])
+
+
+(zrf/defview validate-view
+  [validate-query]
+  [:div
+   [:style ".monaco {width: 100%; min-height: 200px; border: 1px solid #ddd;}"]
+   [app.monaco/monaco
+    {:class (c :block [:w 100] [:h 100])
+     :on-change (fn [x] (zrf/dispatch [validate-query-change x]))
+     :value (or validate-query "{}")}]
+
+   [anti.button/button {:class (c [:mt 2])
+                        :type "primary" :on-click #(zrf/dispatch [call-validate])} "Query"]])
+
 (defmethod render-view 'zen-ui/view-for-validate
   [{d :data}]
   [:div  {:class (c [:p 2])}
-   [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Validate"]
-   [:style ".monaco {width: 90%; min-height: 200px; border: 1px solid #ddd;}"]
-   [app.monaco/monaco
-    {:class (c :block [:w 100] [:h 100])
-     :on-change (fn [x] (zrf/dispatch [:on-validate-change x]))
-     :value "{}"}]
-   [:br]
-   [:hr]
-   [:br]
-   [anti.button/button {:type "primary" :on-click #(zrf/dispatch [:validate])} "Cancel"]])
+   [validate-view]
+   [validate-result-view]])
 
 
 (declare render-schema)
@@ -270,7 +307,7 @@
 
 (zrf/defview editor [editor-model]
   [:div
-   [:style ".monaco {width: 90%; min-height: 200px; border: 1px solid #ddd;}"]
+   [:style ".monaco {width: 100%; min-height: 200px; border: 1px solid #ddd;}"]
    [app.monaco/monaco
     {:class (c :block [:w 100] [:h 100])
      :on-change (fn [x] (zrf/dispatch [on-model-change x]))
@@ -291,18 +328,10 @@
       [anti.button/button {:type "default" :on-click #(zrf/dispatch [set-edit-mode false])} "Cancel"]
       [anti.button/button {:type "primary" :on-click #(zrf/dispatch [save])} "Save"]]]
     [:div
-     (edn (:data view-data))
+     (edn (dissoc (:data view-data) :zen/name :zen/file))
      [:br]
      [anti.button/button {:type "default" :on-click #(zrf/dispatch [set-edit-mode true])} "Edit"]]))
 
-
-(zrf/defx call-rpc
-  [{db :db} & _]
-  (let [method (get-in db [::db :data :model :zen/name])
-        params (clojure.edn/read-string (get-in db [::db :rpc :form :value :params]))]
-    {:zen/rpc {:method (symbol method)
-               :path [::db :rpc :result]
-               :params params}}))
 
 
 (defmethod render-view 'zen-ui/view-for-edn
@@ -324,38 +353,119 @@
         [:a {:href (symbol-url (:operation r))}
          (str (:operation r))]]])]
 
-   [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Test routes"]
-   ])
+   [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Test routes"]])
 
-(defmethod render-view 'zen-ui/view-for-rpc
-  [{:keys [result-error result-loading result model] :as data}]
-  [:div {:class (c [:space-y 2])}
-   [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Call " (get model :zen/name)]
-   [:div (get model :zen/desc)]
 
-   [:div "Params:"]
-   [anti.textarea/zf-textarea
-    {:opts {:zf/root [::db :rpc :form] :zf/path [:params]}}]
+(zrf/defx call-rpc
+  [{db :db} & _]
+  (let [method (get-in db [::db :data :model :zen/name])
+        params (clojure.edn/read-string (get-in db [::rpc-params]))]
+    {:zen/rpc {:method (symbol method)
+               :params params
+               :path [::rpc-result]}}))
+
+(zrf/defsp rpc-result [::rpc-result])
+
+(zrf/defx rpc-params-change
+  [{db :db} [_ v]]
+  {:db (assoc db ::rpc-params v)})
+
+(zrf/defs rpc-params
+  [db _]
+  (or (get db [::rpc-params])
+      (when-let [v (get-in db [::db :data :views 'zen-ui/view-for-rpc :data :placeholder])]
+        (pp v))))
+
+(zrf/defview rpc-results-view
+  [rpc-result rpc-params]
+  [:div
+   [:style ".monaco {width: 100%; min-height: 200px; border: 1px solid #ddd;}"]
+   [app.monaco/monaco
+    {:class (c :block [:w 100] [:h 100])
+     :on-change (fn [x] (zrf/dispatch [rpc-params-change x]))
+     :value rpc-params}]
+
+   #_[anti.textarea/zf-textarea
+      {:opts {:zf/root [::db :rpc :form] :zf/path [:params]}}]
 
    [anti.button/button {:class (c [:mt 2])
                         :type "primary" :on-click #(zrf/dispatch [call-rpc])} "Send"]
-
-   [:div ]
-   (when result-loading
-     [:div "loading..."])
-
-   (when result-error
+   (when-let [err (:error rpc-result)]
      [:div {:class (c [:text :red-500] [:mt 4])}
-      (if (string? result-error)
-        result-error
-        [:div
-         [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b [:text :red-600])} "Error:"]
-         (app.symbols/edn result-error)])])
+      [:div
+       [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b [:text :red-600])} "Error:"]
+       (app.symbols/edn err)]])
 
-   (when (and result (nil? result-error))
+   (when-let [res (:data rpc-result)]
      [:div
       [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Result:"]
-      (app.symbols/edn result)])])
+      (app.symbols/edn res)])])
+
+
+(defmethod render-view 'zen-ui/view-for-rpc
+  [{model :data}]
+  [:div {:class (c [:space-y 2])}
+   [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Call '" (str (get model :zen/name))]
+   [:div (get model :zen/desc)]
+
+   [rpc-results-view]])
+
+(zrf/defsp pg-query [::pg-query])
+(zrf/defsp pg-result [::pg-result])
+
+
+(def default-sql "
+select jsonb_strip_nulls(to_jsonb(t.*)) as tbl
+from information_schema.tables t
+where table_schema = 'public'
+limit 100
+")
+
+(zrf/defx call-pg
+  [{db :db} & _]
+  (let [q (get-in db [::pg-query])
+        pg (get-in db [::db :data :model :zen/name])]
+    {:zen/rpc {:method 'zenbox/query
+               :params {:sql (or q default-sql) :db pg}
+               :path [::pg-result]}}))
+
+(zrf/defx pg-query-change
+  [{db :db} [_ v]]
+  {:db (assoc db ::pg-query v)})
+
+(zrf/defview pg-result-view
+  [pg-result]
+  [:div
+   (when-let [err (:error pg-result)]
+     [:div {:class (c [:text :red-500] [:mt 4])}
+      [:div
+       [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b [:text :red-600])} "Error:"]
+       (app.symbols/edn err)]])
+
+   (when-let [res (:data pg-result)]
+     [:div
+      [:h1 {:class (c :text-xl [:my 2] [:p 1] :border-b)} "Result:"]
+      (app.symbols/edn res)])])
+
+
+(zrf/defview pg-view
+  [pg-query]
+  [:div
+   [:style ".monaco {width: 100%; min-height: 200px; border: 1px solid #ddd;}"]
+   [app.monaco/monaco
+    {:class (c :block [:w 100] [:h 100])
+     :lang "sql"
+     :on-change (fn [x] (zrf/dispatch [pg-query-change x]))
+     :value (or pg-query default-sql)}]
+
+   [anti.button/button {:class (c [:mt 2])
+                        :type "primary" :on-click #(zrf/dispatch [call-pg])} "Query"]])
+
+(defmethod render-view 'zen-ui/view-for-pg
+  [{model :data}]
+  [:div {:class (c [:space-y 2])}
+   [pg-view]
+   [pg-result-view]])
 
 (defmethod render-view :default
   [{d :data}]

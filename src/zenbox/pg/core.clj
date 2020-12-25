@@ -3,10 +3,30 @@
    [zen.core :as zen]
    [zenbox.services :as srv]
    [zenbox.pg.pool :as pool]
+   [zenbox.pg.coerce]
    [ring.util.codec]
    [clojure.walk]
    [clojure.string :as str]
-   [clojure.java.jdbc :as jdbc]))
+   [dsql.pg]
+   [clojure.java.jdbc :as jdbc])
+  (:import org.postgresql.util.PSQLException
+           java.sql.BatchUpdateException))
+
+(defmacro pr-error [& body]
+  `(try
+     ~@body
+     (catch java.sql.BatchUpdateException e#
+       (if-let [ne# (.getNextException e#)] ;; rethrow exception containing SQL error
+         (let [msg# (.getMessage ne#)]
+           (throw (java.sql.SQLException. msg#)))
+         (do
+           (throw e#))))
+     (catch org.postgresql.util.PSQLException e#
+       (if-let [ne# (.getNextException e#)] ;; rethrow exception containing SQL error
+         (let [msg# (.getMessage ne#)]
+           (throw (java.sql.SQLException. msg#)))
+         (do
+           (throw e#))))))
 
 (defn env [v]
   (-> v (name)
@@ -15,7 +35,12 @@
       (System/getenv)))
 
 (defn query [ds q]
-  (jdbc/query ds q))
+  (pr-error
+   (if (map? q)
+     (let [sql (dsql.pg/format q)]
+       (println "SQL:" sql)
+       (jdbc/query ds sql))
+     (jdbc/query ds q))))
 
 (defn database-url [spec]
   (let [conn spec]
