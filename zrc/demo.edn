@@ -1,6 +1,4 @@
 {import #{zenbox fhir zen-ui},
- sql-op {:zen/tags #{zenbox/rpc}, :db db, :operation zenbox/sql},
- entity {:zen/tags #{zen/sch}, :zen/desc "docs here..."},
  index-op
  {:response {:headers {"location" "static/index.html"}, :status 302},
   :zen/tags #{zenbox/op},

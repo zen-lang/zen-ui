@@ -126,6 +126,7 @@
                               (contains? tgs 'zenbox/store)     (c  [:text :blue-700])
                               (contains? tgs 'zen/tag)      (c  [:text :yellow-600])
                               (contains? tgs 'zen/property) (c  [:text :blue-700])
+                              (contains? tgs 'zen/server)   (c  [:text :pink-700])
                               (contains? tgs 'zen/valueset) (c  [:bg :pink-300])
                               (contains? tgs 'zen/schema)   (c  [:text :green-600])
                               :else                         (c :border [:bg :gray-300]))]))
@@ -137,6 +138,7 @@
        (contains? tgs 'zen/valueset)  "V"
        (contains? tgs 'zenbox/api) [:i.far.fa-compress-arrows-alt]
        (contains? tgs 'zenbox/op) [:i.far.fa-compress-arrows-alt]
+       (contains? tgs 'zenbox/server) [:i.fas.fa-server]
        (contains? tgs 'zenbox/store)  [:i.far.fa-database]
        (contains? tgs 'zenbox/pg)  [:i.fad.fa-database]
        (contains? tgs 'zen-ui/tag-view)  [:i.far.fa-eye]
