@@ -12,9 +12,7 @@
    [zenbox.web.core :as web]
    [zenbox.web.router :refer [get-all-paths]]))
 
-(defmulti operation (fn [ctx op req]
-                      (println "REQ: " op)
-                      (:operation op)))
+(defmulti operation (fn [ctx op req] (:operation op)))
 
 (defn rpc [ctx req]
   (if-let [op (zen/get-symbol ctx (:method req))]

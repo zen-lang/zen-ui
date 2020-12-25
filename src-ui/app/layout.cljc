@@ -183,6 +183,15 @@
       :icon     "fa-sign-out-alt"
       :title    "Logout"}]]])
 
+(defn prompt [title]
+  #?(:cljs (js/prompt title)))
+
+(zrf/defx add-new-symbol
+  [{db :db} _]
+  (let [nm (prompt "Enter model name:")]
+    {:zen/rpc {:method }}
+    (println "Create symbol" nm)))
+
 (zrf/defview navigation [nav-model]
   [:div 
    [:div {:class (c :bold [:py 1] [:my 2] :border-b)} "Models"]
@@ -190,7 +199,11 @@
      [:div {:key k}
       [:div {:class (c :flex [:space-x 2] :items-center :border-b [:mt 1])}
        [:i.fa.fa-box {:class (c :text-xs [:text :gray-500])}]
-       [:div {:class (c {:font-weight "400"})} (str k)]]
+       [:div {:class (c :flex-1 {:font-weight "400"})} (str k)]
+       [:div [:i.fa.fa-plus {:on-click #(zrf/dispatch [add-new-symbol])
+                             :class (c :text-xs :cursor-pointer
+                                       [:px 2] [:text :gray-500]
+                                       [:hover  [:text :green-500]])}]]]
       [:div {:class (c [:pl 3])}
        (for [[mk m] (->> (:symbols v)
                          (sort-by first))]
