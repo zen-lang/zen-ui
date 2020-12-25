@@ -32,25 +32,11 @@
 
   (matcho/match
    (zenbox/rpc ctx {:method 'demo/insert-patient :params {}})
-   {:error [{:message ":resourceType is required",
-             :type "require",
-             :path [:resourceType],
-             :schema ['fhir/patient :confirms 'fhir/resource :require]}
-            {:message ":id is required",
-             :type "require",
-             :path [:id],
-             :schema ['fhir/patient :confirms 'fhir/resource :require]}]})
+   {:error []})
+
   (matcho/match
    (zenbox/rpc ctx {:method 'demo/read-patient :params {}})
-   {:error [{:message ":resourceType is required",
-             :type "require",
-             :path [:resourceType],
-             :schema ['fhir/resource :require]}
-            {:message ":id is required",
-             :type "require",
-             :path [:id],
-             :schema ['fhir/resource :require]}]
-    })
+   {:error []})
 
   (matcho/match
    (zenbox/rpc ctx {:method 'demo/delete-patient :params sample-valid-patinet})
@@ -63,64 +49,4 @@
 
   (matcho/match
    (zenbox/rpc ctx {:method 'demo/delete-patient :params {}})
-   {:error
-    [{:message ":resourceType is required",
-      :type "require",
-      :path [:resourceType],
-      :schema ['fhir/resource :require]}
-     {:message ":id is required",
-      :type "require",
-      :path [:id],
-      :schema ['fhir/resource :require]}]})
-
-  (matcho/match
-   (zenbox/rpc ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house
-                                                                  :user "superadmin"
-                                                                  :password "123"
-                                                                  :host "clickhouse-db"
-                                                                  :database "zenbox"
-                                                                  :port 5432}})
-
-   {:result
-    {:user "superadmin",
-     :password "123",
-     :host "clickhouse-db",
-     :port 5432,
-     ;; :zen/tags #{'zenbox/storage 'zenbox/pgstore},
-     :zen/name 'zenbox/click-house}
-    })
-
-  (matcho/match (zen/get-symbol ctx 'zenbox/click-house)
-                {:user "superadmin",
-                 :password "123",
-                 :host "clickhouse-db",
-                 :port 5432,
-                 :database "zenbox"
-                 ;; :zen/tags #{'zenbox/storage 'zenbox/pgstore},
-                 :zen/name 'zenbox/click-house})
-
-  (matcho/match
-   (zenbox/rpc ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house}})
-
-   {:error
-    [{:message ":password is required",
-      :type "require",
-      :path [:password],
-      :schema ['zenbox/pgstore :require]}
-     {:message ":port is required",
-      :type "require",
-      :path [:port],
-      :schema ['zenbox/pgstore :require]}
-     {:message ":host is required",
-      :type "require",
-      :path [:host],
-      :schema ['zenbox/pgstore :require]}
-     {:message ":database is required",
-      :type "require",
-      :path [:database],
-      :schema ['zenbox/pgstore :require]}
-     {:message ":user is required",
-      :type "require",
-      :path [:user],
-      :schema ['zenbox/pgstore :require]}]})
-  )
+   {:error []}))

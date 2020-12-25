@@ -3,23 +3,17 @@
    [zen.core :as zen]
    [zenbox.rpc :refer [rpc-call]]
    [zenbox.storage.atom :as atom-storage]
-   [zenbox.storage.postgres :as postgres-storage]
-   [zenbox.storage.zen :as zen-storage]
-   [zen.store :as zen-extra]))
+   [zenbox.storage.postgres :as postgres-storage]))
 
 (defmulti dispatch-store (fn [ctx rpc storage resource] (:engine storage)))
 
-(defmethod dispatch-store 'zenbox/atom
+(defmethod dispatch-store 'zenbox/atom-store
   [ctx rpc storage params]
   (atom-storage/handle ctx rpc storage params))
 
 (defmethod dispatch-store 'zenbox/jsonb-store
   [ctx rpc storage params]
   (postgres-storage/handle ctx rpc storage params))
-
-(defmethod dispatch-store 'zenbox/zen
-  [ctx rpc storage params]
-  (zen-storage/handle ctx rpc storage params))
 
 (defmethod rpc-call 'zenbox/ensure
   [ctx rpc {params :params}]

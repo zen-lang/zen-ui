@@ -6,7 +6,7 @@
 (defmethod handle
   'zenbox/insert
   [ctx rpc storage params]
-  (let  [{:keys [errors]} (zen/validate ctx [(:schema storage)] params)
+  (let  [{:keys [errors]} (zen/validate ctx (:schemas storage) params)
         path (into [:zen/atom-storage] (:path storage))]
     (if (empty? errors)
       (do (swap! ctx assoc-in (into path [(:resourceType params) (:id params)]) params)
