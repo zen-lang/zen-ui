@@ -7,7 +7,9 @@
             #?(:cljs  [cljs.reader])
             [app.routes :refer [href]]
             [app.layout :refer [symbol-url url]]
+            [app.monaco]
             [clojure.string :as str]))
+
 
 (defn cls [& xs]
   (->> xs (filter identity) (map name) (str/join " ")))
@@ -20,21 +22,10 @@
 
 (zrf/defx on-loaded
   [{db :db} [_ {data :data}]]
-  {:db (assoc db ::editable (pp (:model data)))})
+  {:db (assoc db
+              ::editable (pp (:model data))
+              ::edit-mode false)})
 
-(zrf/defx on-model-change
-  [{db :db} [_ value]]
-  {:db (assoc db ::editable value)})
-
-(zrf/defx save [{db :db} _]
-  (let [val (get db ::editable)]
-    (println (read-edn val))
-    {:zen/rpc {:method 'zen-ui/update-symbol
-               :params  (read-edn val)
-               :success {:event on-loaded}
-               :path [::db]}}))
-
-(zrf/defsp editor-model [::editable])
 
 (zrf/defx ctx
   [{db :db} [_ phase {params :params :as opts}]]
@@ -237,17 +228,61 @@
 
 (defmethod render-view 'zen-ui/view-for-schema
   [{d :data}]
-  (render-schema d))
+  [:div (render-schema d)])
+
+(zrf/defx on-model-change
+  [{db :db} [_ value]]
+  {:db (assoc db ::editable value)})
+
+(zrf/defx save [{db :db} _]
+  (let [val (get db ::editable)]
+    (println (read-edn val))
+    {:zen/rpc {:method 'zen-ui/update-symbol
+               :params  (read-edn val)
+               :success {:event on-loaded}
+               :path [::db]}}))
+
+(zrf/defsp editor-model [::editable])
+
+(zrf/defview editor [editor-model]
+  [:div
+   [:style ".monaco {width: 90%; min-height: 200px; border: 1px solid #ddd;}"]
+   [app.monaco/monaco
+    {:class (c :block [:w 100] [:h 100])
+     :on-change (fn [x] (zrf/dispatch [on-model-change x]))
+     :value editor-model}]])
+
+(zrf/defsp edit-mode [::edit-mode])
+(zrf/defx set-edit-mode
+  [{db :db} [_ val]]
+  {:db (assoc db ::edit-mode val)})
+
+(zrf/defview edn-edit
+  [view-data edit-mode]
+  (if edit-mode
+    [:div {:class (c [:space-y 4])}
+     [editor]
+     [:div {:class (c :flex [:space-x 4])}
+      [anti.button/button {:type "default" :on-click #(zrf/dispatch [set-edit-mode false])} "Cancel"]
+      [anti.button/button {:type "primary" :on-click #(zrf/dispatch [save])} "Save"]]]
+    [:div
+     (edn (:data view-data))
+     [:br]
+     [anti.button/button {:type "default" :on-click #(zrf/dispatch [set-edit-mode true])} "Edit"]]))
+
+(defmethod render-view 'zen-ui/view-for-edn
+  [_]
+  [:div {:class (c [:p 4])}
+   [edn-edit]])
+
+(defmethod render-view 'zen-ui/view-for-rpc
+  [{d :data}]
+  [:div "RPC"])
 
 (defmethod render-view :default
   [{d :data}]
   (edn d))
 
-(zrf/defview editor [editor-model]
-  [:textarea {:class (c :block [:w 100] [:h 100])
-              :on-change (fn [ev]
-                           (zrf/dispatch [on-model-change (.. ev -target -value)]))
-              :value editor-model}])
 
 (zrf/defview page [model cur-view view-data]
   [:div {:class (c [:p 8] [:space-y 4])}
@@ -269,8 +304,6 @@
     [:div {:class (c [:w 4] :border-b)}]]
    (render-view view-data)
 
-   [editor]
-   [anti.button/button {:type "primary" :on-click #(zrf/dispatch [save])} "Save"]
    ])
 
 (pages/reg-page ctx page)

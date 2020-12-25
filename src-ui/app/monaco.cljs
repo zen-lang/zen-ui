@@ -18,14 +18,12 @@
         (let [^js/Object e (.create ^js/Object monacoe (dom/dom-node this)
                                     #js{:language "clojure"
                                         :minimap #js{:enabled false}
-                                        :value "???"
+                                        :value (:value props)
                                         :lineNumbers "off"
                                         :scrollbar #js{:horizontal "hidden"
                                                        :vertical "hidden"}
                                         :automaticLayout true})]
-          (.onDidChangeModelContent e (fn [_]
-                                        (when-let [ev (:on-change props)]
-                                          (println "change"))))
+          (.onDidChangeModelContent e (fn [_] (when-let [ev (:on-change props)] (ev (.getValue e)))))
           (reset! editor e)))
 
       :component-will-unmount

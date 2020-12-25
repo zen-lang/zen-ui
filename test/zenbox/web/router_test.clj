@@ -31,10 +31,11 @@
 
   (is (=
        (sut/get-all-paths ctx)
+
        [{:method :GET, :operation 'demo/index-op, :uri "/"}
         {:method :POST, :operation 'demo/json-rpc-op, :uri "/json-rpc"}
         {:method :GET, :operation 'demo/get-symbols, :uri "/zen/symbols"}
-        {:method :GET, :operation 'demo/get-symbol, :uri "/zen/symbols/{ns}/{name}"}
+        {:method :GET, :operation 'demo/get-symbol, :uri "/zen/symbols/:ns/:name"}
         {:method :GET, :operation 'demo/get-tags, :uri "/zen/tags"}]
        ))
 

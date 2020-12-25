@@ -1,15 +1,16 @@
 (ns zenbox.core
   (:require
-   [zenbox.web.core :as web]
-   [zen.core :as zen]
-   [zenbox.storage.core]
-   [zenbox.pg.core]
-   [zenbox.rpc :refer [rpc-call]]
-   [edamame.core]
+   [clojure.java.io :as io]
+   [clojure.pprint]
    [clojure.string :as str]
    [clojure.walk]
-   [clojure.pprint]
-   [clojure.java.io :as io]))
+   [edamame.core]
+   [zen.core :as zen]
+   [zenbox.pg.core]
+   [zenbox.rpc :refer [rpc-call]]
+   [zenbox.storage.core]
+   [zenbox.web.core :as web]
+   [zenbox.web.router :refer [get-all-paths]]))
 
 (defmulti operation (fn [ctx op req] (:operation op)))
 
@@ -121,11 +122,11 @@
 
 (defmethod rpc-call 'zen-ui/rpc-methods
   [ctx rpc req]
-  {:result {:methods (zen/get-tag ctx 'zenbox/rpc)}})
+  {:result {:methods (sort (zen/get-tag ctx 'zenbox/rpc))}})
 
 (defmethod rpc-call 'zen-ui/endpoints
   [ctx rpc req]
-  {:result {:endpoints (zen/get-tag ctx 'zenbox/api)}})
+  {:result {:endpoints (get-all-paths ctx)}})
 
 (defn dispatch-op [ctx route request]
   (if route

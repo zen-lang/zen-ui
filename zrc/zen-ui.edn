@@ -61,4 +61,13 @@
  {:zen/tags #{tag-view}
   :width -1
   :slag "edn"
-  :title "Edn"}}
+  :title "Edn"}
+
+ view-for-rpc
+ {:zen/tags #{tag-view}
+  :width -1
+  :slag "rpc"
+  :title "RPC"
+  :tag zenbox/rpc}
+
+ }

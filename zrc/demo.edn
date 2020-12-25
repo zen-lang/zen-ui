@@ -39,7 +39,7 @@
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/read,
   :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
-  :zen/desc "My desc change",
+  :zen/desc "Read User Operation",
   :zen/name read-user,
   :storage user-store},
  json-rpc-op {:zen/tags #{zenbox/op}, :operation zenbox/json-rpc},
@@ -91,5 +91,8 @@
  delete-patient
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/delete,
+  :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
   :params #{fhir/reference},
+  :zen/desc "Slow down ",
+  :zen/name delete-patient,
   :storage patient-store}}
