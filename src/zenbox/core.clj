@@ -9,16 +9,16 @@
 
 (defmulti operation (fn [ctx op req] (:operation op)))
 
-
-
 (defn rpc [ctx req]
   (if-let [op (zen/get-symbol ctx (:method req))]
-    (if-let [schema (:schema op)]
-      (let  [{:keys [errors]} (zen/validate ctx [schema] (:params req))]
-        (if (empty? errors)
-          (rpc-call ctx op req)
-          {:error errors}))
-      (rpc-call ctx op req))
+    (do
+      (println "op" op)
+      (if-let [schema (:schema op)]
+        (let  [{:keys [errors]} (zen/validate ctx [schema] (:params req))]
+          (if (empty? errors)
+            (rpc-call ctx op req)
+            {:error errors}))
+        (rpc-call ctx op req)))
     {:error {:message (str "No operation defined for " (:method req))}}))
 
 
@@ -34,13 +34,9 @@
   [ctx op req]
   (:response op))
 
-(defmethod rpc-call 'demo/dashboard
-  [ctx rpc req]
-  {:result {:message "Dashboard"}})
-
-(defmethod rpc-call 'demo/all-tags
-  [ctx rpc req]
-  {:result (:tags @ctx)})
+;; (defmethod rpc-call 'zen-ui/all-tags
+;;   [ctx rpc req]
+;;   {:result (:tags @ctx)})
 
 (defmulti view (fn [ctx view model] (:zen/name view)))
 
@@ -137,17 +133,6 @@
    (mapv (fn [sym] (zen/get-symbol ctx sym))))
 
   (resolve-views ctx #{'zen/schema})
-  (operation
-
-   ctx
-   {:operation 'zenbox/json-rpc}
-   {:resource
-    {:method 'demo/create-pgstore  :params {:zen/name 'click-house
-                                            :kind "postgres"
-                                            :user "superadmin"
-                                            :password "123"
-                                            :host "clickhouse-db"
-                                            :port 5432}}})
 
 
   )

@@ -1,11 +1,18 @@
 {ns fhir
- resource
+ ;; TODO add more fields
+
+ reference
  {:zen/tags #{zen/schema}
   :type zen/map
   :require #{:id :resourceType}
   :keys {:id {:type zen/string}
-         :resourceType {:type zen/string}}
-  }
+         :resourceType {:type zen/string}}}
+
+ resource
+ {:zen/tags #{zen/schema}
+  :type zen/map
+  :confirms #{reference}}
+
  patient
  {:zen/tags #{zen/schema}
   :confirms #{resource}
@@ -15,6 +22,7 @@
                         :keys {:family {:type zen/string}
                                :given {:type zen/vector :every {:type zen/string}}}}}
          :birthDate {:type zen/datetime}}}
+
  practitioner
  {:zen/tags #{zen/schema}
   :confirms #{resource}
@@ -26,13 +34,6 @@
          :birthDate {:type zen/datetime}}}
 
 
- user
- {:zen/tags #{zen/schema}
-  :type zen/map
-  :keys {:name {:type zen/string}
-         :email {:type zen/string}}}
+ 
 
- new-user
- {:zen/tags #{zen/schema}
-  :type zen/map
-  :require #{:email}}}
+ }

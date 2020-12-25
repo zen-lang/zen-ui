@@ -9,39 +9,39 @@
 
 (defmulti dispatch-store (fn [ctx rpc storage resource] (:engine storage)))
 
-(defmethod dispatch-store 'storage/atom
+(defmethod dispatch-store 'zenbox/atom
   [ctx rpc storage params]
   (atom-storage/handle ctx rpc storage params))
 
-(defmethod dispatch-store 'storage/jsonb-store
+(defmethod dispatch-store 'zenbox/jsonb-store
   [ctx rpc storage params]
   (postgres-storage/handle ctx rpc storage params))
 
-(defmethod dispatch-store 'storage/zen
+(defmethod dispatch-store 'zenbox/zen
   [ctx rpc storage params]
   (zen-storage/handle ctx rpc storage params))
 
-(defmethod rpc-call 'storage/ensure
+(defmethod rpc-call 'zenbox/ensure
   [ctx rpc {params :params}]
   (let [storage (zen/get-symbol ctx (:storage rpc))]
     (dispatch-store ctx rpc storage params)))
 
-(defmethod rpc-call 'storage/insert
+(defmethod rpc-call 'zenbox/insert
   [ctx rpc {params :params}]
   (let [storage (zen/get-symbol ctx (:storage rpc))]
     (dispatch-store ctx rpc storage params)))
 
-(defmethod rpc-call 'storage/read
+(defmethod rpc-call 'zenbox/read
   [ctx rpc {params :params}]
   (let [storage (zen/get-symbol ctx (:storage rpc))]
     (dispatch-store ctx rpc storage params)))
 
-(defmethod rpc-call 'storage/search
+(defmethod rpc-call 'zenbox/search
   [ctx rpc {params :params}]
   (let [storage (zen/get-symbol ctx (:storage rpc))]
     (dispatch-store ctx rpc storage params)))
 
-(defmethod rpc-call 'storage/delete
+(defmethod rpc-call 'zenbox/delete
   [ctx rpc {params :params}]
   (let [storage (zen/get-symbol ctx (:storage rpc))]
     (dispatch-store ctx rpc storage params)))

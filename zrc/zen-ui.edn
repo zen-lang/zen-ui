@@ -22,13 +22,11 @@
  {:zen/tags #{zenbox/rpc}
   :zen/desc "Return all endpoints"}
 
- page-engine {:zen/tags #{zen/tag}
-              :zen/desc "Register page engine"}
-
+ ;; views for models
  tag-view {:zen/tags #{zen/tag zen/schema}
            :zen/desc "Register view for specific tag"
            :type zen/map
-           :require #{:tag :title :slag}
+           :require #{:title :slag}
            :keys {:tag   {:type zen/symbol :tags #{zen/tag}}
                   :width {:type zen/integer}
                   :slag  {:type zen/string}
@@ -60,27 +58,4 @@
  {:zen/tags #{tag-view}
   :width -1
   :slag "edn"
-  :title "Edn"}
-
- md {:zen/tags #{page-engine zen/schema}
-     :type zen/map
-     :keys {:file {:type zen/string}}}
-
- html {:zen/tags #{page-engine zen/schema}
-       :type zen/map
-       :keys {:file {:type zen/string}}}
-
- page {:zen/tags #{zen/tag zen/schema}
-       :type zen/map
-       :schema-key {:key :type}
-       :keys {:type {:type zen/symbol :tags #{page-engine}}}}
-
- site {:zen/tags #{zen/tag zen/schema}
-       :zen/docs "Register site entrypoint"
-       :type zen/map
-       :keys {:title {:type zen/string}
-              :url   {:type zen/string}
-              :views {:type zen/set :values {:type zen/symbol}}
-              :top-menu {:type zen/vector :every {:type zen/any}}}}
-
- }
+  :title "Edn"}}

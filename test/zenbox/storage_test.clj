@@ -86,18 +86,18 @@
      :password "123",
      :host "clickhouse-db",
      :port 5432,
-     ;; :zen/tags #{'storage/storage 'storage/pgstore},
-     :zen/name 'storage/click-house}
+     ;; :zen/tags #{'zenbox/storage 'zenbox/pgstore},
+     :zen/name 'zenbox/click-house}
     })
 
-  (matcho/match (zen/get-symbol ctx 'storage/click-house)
+  (matcho/match (zen/get-symbol ctx 'zenbox/click-house)
                 {:user "superadmin",
                  :password "123",
                  :host "clickhouse-db",
                  :port 5432,
                  :database "zenbox"
-                 ;; :zen/tags #{'storage/storage 'storage/pgstore},
-                 :zen/name 'storage/click-house})
+                 ;; :zen/tags #{'zenbox/storage 'zenbox/pgstore},
+                 :zen/name 'zenbox/click-house})
 
   (matcho/match
    (zenbox/rpc ctx {:method 'demo/create-pgstore  :params {:zen/name 'click-house}})
@@ -106,21 +106,21 @@
     [{:message ":password is required",
       :type "require",
       :path [:password],
-      :schema ['storage/pgstore :require]}
+      :schema ['zenbox/pgstore :require]}
      {:message ":port is required",
       :type "require",
       :path [:port],
-      :schema ['storage/pgstore :require]}
+      :schema ['zenbox/pgstore :require]}
      {:message ":host is required",
       :type "require",
       :path [:host],
-      :schema ['storage/pgstore :require]}
+      :schema ['zenbox/pgstore :require]}
      {:message ":database is required",
       :type "require",
       :path [:database],
-      :schema ['storage/pgstore :require]}
+      :schema ['zenbox/pgstore :require]}
      {:message ":user is required",
       :type "require",
       :path [:user],
-      :schema ['storage/pgstore :require]}]})
+      :schema ['zenbox/pgstore :require]}]})
   )

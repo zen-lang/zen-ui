@@ -36,11 +36,18 @@
           [:div {:key (:resource err) :class (c :flex [:space-x 3])}
            (when-let [tp (:type err)]
              [:div {:class (c [:w 40] [:text :gray-500] {:font-weight 400})} tp])
-           (when (:path err)
-             [:div
-              [:b "in: "]
-              (pr-str (:path err))])
-           [:div (:message err)]
+           [:div
+            [:div (:message err)]
+            [:div
+             (when (:path err)
+               [:div
+                [:b "in: "]
+                (pr-str (:path err))])
+             (when (:schema err)
+               [:div
+                [:b "by: "]
+                (pr-str (:schema err))])]]
+           
            ])]])]])
 
 (pages/reg-page ctx page)

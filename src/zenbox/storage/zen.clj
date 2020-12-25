@@ -5,7 +5,7 @@
 (defmulti handle (fn [ctx rpc storage req] (:operation rpc)))
 
 (defmethod handle
-  'storage/insert
+  'zenbox/insert
   [ctx rpc storage params]
   (let [{:keys [resource namespace schema]} storage
         name (:zen/name params)

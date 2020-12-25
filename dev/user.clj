@@ -36,12 +36,14 @@
 
 (comment
 
+  ;;TODO reload everything
   (do
+    (zenbox/stop ctx)
     (def ctx (zen/new-context))
     (zen/read-ns ctx 'demo)
+    (zenbox/start ctx)
     )
 
-  (zenbox/start ctx)
 
   (zenbox/stop ctx)
 
@@ -53,6 +55,7 @@
                    :params {:query "select * from \"users\""}})
 
   (restart-ui)
+  (zen/get-symbol ctx 'zen-ui/errors)
 
   )
 

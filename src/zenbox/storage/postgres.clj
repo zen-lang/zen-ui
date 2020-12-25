@@ -16,7 +16,7 @@
     resource jsonb
   ); " tbl))
 
-(defmethod create-store 'storage/jsonb-store
+(defmethod create-store 'zenbox/jsonb-store
   [ctx {tbl :table-name db-nm :db}]
   (if-let [db (get-in @ctx [:services db-nm])]
     {:result (zenbox.pg.core/exec! db (table-ddl tbl))}
@@ -31,7 +31,7 @@
 (defmethod rpc-call 'zenbox/ensure-stores
   [ctx rpc req]
   (let [dbs (:dbs rpc)
-        stores (->> (zen/get-tag ctx 'storage/store)
+        stores (->> (zen/get-tag ctx 'zenbox/store)
                     (mapv (fn [s] (zen/get-symbol ctx s)))
                     (mapv (fn [store]
                             (when (contains? dbs (:db store))

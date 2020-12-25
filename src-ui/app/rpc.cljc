@@ -17,7 +17,7 @@
 (zrf/defx call-rpc
   [{db :db} & _]
   (let [req (get-in db [::db :form :value])]
-    {:zen/rpc {:method (:method req)
+    {:zen/rpc {:method (symbol (:method req))
                :path [::db :result]}}))
 
 (zrf/defx rpc-methods-loaded

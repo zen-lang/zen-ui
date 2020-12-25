@@ -4,7 +4,7 @@
 (defmulti handle (fn [ctx rpc storage params] (:operation rpc)))
 
 (defmethod handle
-  'storage/insert
+  'zenbox/insert
   [ctx rpc storage params]
   (let  [{:keys [errors]} (zen/validate ctx [(:schema storage)] params)
         path (into [:zen/atom-storage] (:path storage))]
@@ -18,7 +18,7 @@
     (get-in @ctx (into path [(:resourceType params) (:id params)]))))
 
 (defmethod handle
-  'storage/delete
+  'zenbox/delete
   [ctx rpc storage params]
   (let [path (into [:zen/atom-storage] (:path storage))]
     (if (nil? (read ctx storage params))
@@ -27,7 +27,7 @@
          {:result params}))))
 
 (defmethod handle
-  'storage/read
+  'zenbox/read
   [ctx rpc storage params]
   (let [resource (read ctx storage params)]
     (if (nil? resource)

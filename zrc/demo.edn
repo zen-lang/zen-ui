@@ -1,80 +1,23 @@
 {ns demo
- import #{zenbox zen-ui}
+ import #{zenbox zen-ui fhir}
+
+ db
+ {:zen/tags #{zenbox/service}
+  :service zenbox/pg
+  :port 5451
+  :host "localhost"
+  :user "postgres"
+  :password "postgres"
+  :database "mybox"}
 
  server
  {:zen/tags #{zenbox/server}
   :port 4445
-  :services #{storage/db}
+  :services #{db}
   :after-start [ensure-stores]
   :apis #{api}}
 
- index-op
- {:zen/tags #{zenbox/op}
-  :operation zenbox/response
-  :response {:status 302 :headers {"location" "static/index.html"}}}
-
- ensure-stores
- {:zen/tags #{zenbox/rpc}
-  :operation zenbox/ensure-stores
-  :dbs #{storage/db}}
-
- sql-op
- {:zen/tags #{zenbox/rpc}
-  :operation zenbox/sql
-  :db storage/db}
-
- create-user
- {:zen/tags #{zenbox/rpc}
-  :operation storage/insert
-  :storage storage/user-store
-  :schemas #{new-user}}
-
- read-user
- {:zen/tags #{zenbox/rpc}
-  :operation storage/read
-  :storage storage/user-store}
-
- search-user
- {:zen/tags #{zenbox/rpc}
-  :operation storage/search
-  :storage storage/user-store
-  :params {:name {:template "resource->>'name' ilike {{param}}"}}}
-
- ;; instance of zenbox/json-rpc
- json-rpc-op
- {:zen/tags #{zenbox/op}
-  ;; configuration
-  :operation zenbox/json-rpc}
-
- insert-patient
- {:zen/tags #{zenbox/rpc}
-  :storage storage/patient-store
-  :operation storage/insert
-  }
-
- read-patient
- {:zen/tags #{zenbox/rpc}
-  :storage storage/patient-store
-  :schema fhir/resource
-  :operation storage/read}
-
- delete-patient
- {:zen/tags #{zenbox/rpc}
-  :storage storage/patient-store
-  :schema fhir/resource
-  :operation storage/delete}
-
- create-pgstore
- {:zen/tags #{zenbox/rpc}
-  :storage storage/postgres-config-store
-  :operation storage/insert}
-
- dashboard
- {:zen/tags #{zenbox/rpc}}
-
- all-tags
- {:zen/tags #{zenbox/rpc}}
-
+ ;; routing
  api
  {:zen/tags #{zenbox/api}
   :GET {:operation index-op}
@@ -83,20 +26,93 @@
 
  zen-api
  {:zen/tags #{zenbox/api}
-  "symbols" {:GET {:operation get-symbols}
-             [:ns] {[:name] {:GET {:operation get-symbol}}}}
-  "tags"    {:GET {:operation get-tags}}}
+  "symbols" {:GET {:operation zen-ui/get-symbols}
+             [:ns] {[:name] {:GET {:operation zen-ui/get-symbol}}}}
+  "tags"    {:GET {:operation zen-ui/get-tags}}}
 
- get-all-symbols
+ index-op
+ {:zen/tags #{zenbox/op}
+  :operation zenbox/response
+  :response {:status 302 :headers {"location" "static/index.html"}}}
+
+ json-rpc-op
+ {:zen/tags #{zenbox/op}
+  :operation zenbox/json-rpc}
+
+ ensure-stores
  {:zen/tags #{zenbox/rpc}
-  :zen/desc "Get all tags"
-  :params {:type zen/map}}
+  :operation zenbox/ensure-stores
+  :dbs #{db}}
 
- zen-validate
+ ;; user
+
+ user
+ {:zen/tags #{zen/schema}
+  :type zen/map
+  :keys {:name {:type zen/string}
+         :email {:type zen/string}}}
+
+ sql-op
  {:zen/tags #{zenbox/rpc}
-  :zen/desc ""
-  :params {:type zen/map
-           :keys {:schema {:type zen/symbol}
-                  :data   {:type zen/any}}}}
+  :operation zenbox/sql
+  :db db}
 
- }
+ user-store
+ {:zen/tags #{zenbox/store zenbox/jsonb-store}
+  :engine zenbox/jsonb-store
+  :db db
+  :table-name "users"
+  :schemas #{user}
+  :indices {}}
+
+ new-user
+ {:zen/tags #{zen/schema}
+  :type zen/map
+  :require #{:email}}
+
+ create-user
+ {:zen/tags #{zenbox/rpc}
+  :operation zenbox/insert
+  :storage user-store
+  :schemas #{new-user}}
+
+ read-user
+ {:zen/tags #{zenbox/rpc}
+  :operation zenbox/read
+  :storage user-store}
+
+ search-user
+ {:zen/tags #{zenbox/rpc}
+  :operation zenbox/search
+  :storage user-store
+  :params {:name {}}}
+
+ ;; patient
+patient
+{:zen/tags #{zen/schema}
+ :confirms #{fhir/patient}}
+
+patient-store
+{:zen/tags #{zenbox/store zenbox/atom-store}
+ :engine zenbox/atom-store
+ :schemas #{patient}
+ :path [:fhir]}
+
+insert-patient
+{:zen/tags #{zenbox/rpc}
+ :storage patient-store
+ :operation zenbox/insert}
+
+read-patient
+{:zen/tags #{zenbox/rpc}
+ :operation zenbox/read
+ :storage patient-store
+ :params #{fhir/reference}
+ :result #{patient}}
+
+delete-patient
+{:zen/tags #{zenbox/rpc}
+ :operation zenbox/delete
+ :storage patient-store
+ :params #{fhir/reference}}}
+
