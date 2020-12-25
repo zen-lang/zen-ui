@@ -64,7 +64,10 @@
       [:div "loading..."])
 
     (when result-error
-      [:div (app.symbols/edn result-error)])
+      [:div {:class (c [:text :red-500])}
+       (if (string? result-error)
+         result-error
+         (app.symbols/edn result-error))])
 
     (when (and result (nil? result-error))
       [:div (app.symbols/edn result)])]])

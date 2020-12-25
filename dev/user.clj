@@ -55,6 +55,7 @@
                    :params {:query "select * from \"users\""}})
 
   (restart-ui)
+
   (zen/get-symbol ctx 'zen-ui/errors)
 
   )
