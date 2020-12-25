@@ -42,13 +42,13 @@
   [ctx op req]
   (:response op))
 
-(defmethod operation 'zen-ui/get-tags
-  [ctx op req]
-  {:status 200 :body {:tags "123"}})
+;; (defmethod operation 'zen-ui/get-tags
+;;   [ctx op req]
+;;   {:status 200 :body {:tags "123"}})
 
-(defmethod operation 'zen-ui/get-symbols
-  [ctx op req]
-  {:status 200 :body {:tags "123"}})
+;; (defmethod operation 'zen-ui/get-symbols
+;;   [ctx op req]
+;;   {:status 200 :body {:tags "123"}})
 
 ;; (defmethod rpc-call 'zen-ui/all-tags
 ;;   [ctx rpc req]
