@@ -2,17 +2,13 @@
   (:require [app.pages :as pages]
             [reagent.core :as r]
             [stylo.core :refer [c]]
-            [reagent.dom :as dom]
-            [re-frame.core :as rf]))
-
-
-(def ^js/Object monacoe (when-let [m (aget js/window "monaco")] (aget m  "editor")))
+            [reagent.dom :as dom]))
 
 (defn monaco [props]
-  (let [editor (atom nil)]
+  (let [^js/Object monacoe (when-let [m (aget js/window "monaco")] (aget m  "editor"))
+        editor (atom nil)]
     (r/create-class
      {:reagent-render (fn [props attrs] [:div.monaco {:style (:style props)}])
-
       :component-did-mount
       (fn [this]
         (let [^js/Object e (.create ^js/Object monacoe (dom/dom-node this)
@@ -39,7 +35,7 @@
               fr (.getFullModelRange model)]
           (.pushEditOperations model #js[] #js[ #js{:range fr :text value}])))})))
 
-(defn monacot [props]
+#_(defn monacot [props]
   (let [editor (atom nil)]
     (r/create-class
      {:reagent-render (fn [props attrs] [:div.monaco {:style (:style props)}])

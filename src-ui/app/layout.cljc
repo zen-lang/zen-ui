@@ -187,9 +187,9 @@
   #?(:cljs (js/prompt title)))
 
 (zrf/defx add-new-symbol
-  [{db :db} _]
+  [{db :db} [_ ns]]
   (let [nm (prompt "Enter model name:")]
-    {:zen/rpc {:method }}
+    {:zen/rpc {:method 'zen-ui/create-symbol}}
     (println "Create symbol" nm)))
 
 (zrf/defview navigation [nav-model]
@@ -200,7 +200,7 @@
       [:div {:class (c :flex [:space-x 2] :items-center :border-b [:mt 1])}
        [:i.fa.fa-box {:class (c :text-xs [:text :gray-500])}]
        [:div {:class (c :flex-1 {:font-weight "400"})} (str k)]
-       [:div [:i.fa.fa-plus {:on-click #(zrf/dispatch [add-new-symbol])
+       [:div [:i.fa.fa-plus {:on-click #(zrf/dispatch [add-new-symbol k])
                              :class (c :text-xs :cursor-pointer
                                        [:px 2] [:text :gray-500]
                                        [:hover  [:text :green-500]])}]]]

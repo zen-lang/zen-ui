@@ -8,7 +8,13 @@
  {:response {:headers {"location" "static/index.html"}, :status 302},
   :zen/tags #{zenbox/op},
   :operation zenbox/response},
- new-user {:zen/tags #{zen/schema}, :require #{:email}, :type zen/map},
+ new-user
+ {:zen/tags #{zen/schema},
+  :zen/file "/Users/niquola/zen-ui/zrc/demo.edn",
+  :require #{:email},
+  :type zen/map,
+  :zen/desc "desc",
+  :zen/name new-user},
  create-user
  {:zen/tags #{zenbox/rpc},
   :operation zenbox/insert,
