@@ -13,8 +13,8 @@
   (if-let [op (zen/get-symbol ctx (:method req))]
     (do
       (println "op" op)
-      (if-let [schema (:schema op)]
-        (let  [{:keys [errors]} (zen/validate ctx [schema] (:params req))]
+      (if-let [schemas (:params op)]
+        (let  [{:keys [errors]} (zen/validate ctx schemas (:params req))]
           (if (empty? errors)
             (rpc-call ctx op req)
             {:error errors}))
