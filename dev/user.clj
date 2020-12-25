@@ -48,14 +48,21 @@
   (zenbox/stop ctx)
 
   (zenbox/rpc ctx {:method 'zen-ui/get-symbol
-                        :params {:name 'zen-ui/tag-view}})
+                   :params {:name 'zen-ui/tag-view}})
 
   (zenbox/rpc ctx {:method 'demo/ensure-stores})
-  (zenbox/rpc ctx {:method 'demo/sql-op
-                   :params {:query "select * from \"users\""}})
+  (def sym (zen/get-symbol ctx 'demo/insert-patient))
+
+  sym
+
+  (zenbox/rpc ctx {:method 'zen-ui/update-symbol
+                   :params (assoc sym :extra 2)})
 
   (restart-ui)
   (zen/get-symbol ctx 'zen-ui/errors)
+
+  (def model-to-update (zen/get-symbol ctx 'demo/insert-patient))
+
 
   )
 

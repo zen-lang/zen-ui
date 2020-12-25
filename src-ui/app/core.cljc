@@ -21,7 +21,7 @@
             [app.symbols]
             [app.rest]
             [app.errors]
-            #?(:cljs [app.reagent])
+            #?(:cljs [app.monaco])
             [app.reframe]))
 
 

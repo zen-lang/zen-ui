@@ -2,12 +2,39 @@
   (:require [app.pages :as pages]
             [zframes.re-frame :as zrf]
             [stylo.core :refer [c]]
+            [anti.button]
+            #?(:cljs  [cljs.pprint])
+            #?(:cljs  [cljs.reader])
             [app.routes :refer [href]]
             [app.layout :refer [symbol-url url]]
             [clojure.string :as str]))
 
 (defn cls [& xs]
   (->> xs (filter identity) (map name) (str/join " ")))
+
+(defn pp [x]
+  #?(:cljs (with-out-str (cljs.pprint/pprint x))))
+
+(defn read-edn [x]
+  #?(:cljs (cljs.reader/read-string x)))
+
+(zrf/defx on-loaded
+  [{db :db} [_ {data :data}]]
+  {:db (assoc db ::editable (pp (:model data)))})
+
+(zrf/defx on-model-change
+  [{db :db} [_ value]]
+  {:db (assoc db ::editable value)})
+
+(zrf/defx save [{db :db} _]
+  (let [val (get db ::editable)]
+    (println (read-edn val))
+    {:zen/rpc {:method 'zen-ui/update-symbol
+               :params  (read-edn val)
+               :success {:event on-loaded}
+               :path [::db]}}))
+
+(zrf/defsp editor-model [::editable])
 
 (zrf/defx ctx
   [{db :db} [_ phase {params :params :as opts}]]
@@ -20,7 +47,9 @@
     {:db (assoc-in db [::view] (:view params))
      :zen/rpc {:method 'zen-ui/get-symbol
                :params {:name (str/replace (:name opts) #":" "/")}
-               :path [::db]}}))
+               :success {:event on-loaded}
+               :path [::db]
+               }}))
 
 (zrf/defs model [db _]
   (get-in db [::db :data]))
@@ -214,6 +243,12 @@
   [{d :data}]
   (edn d))
 
+(zrf/defview editor [editor-model]
+  [:textarea {:class (c :block [:w 100] [:h 100])
+              :on-change (fn [ev]
+                           (zrf/dispatch [on-model-change (.. ev -target -value)]))
+              :value editor-model}])
+
 (zrf/defview page [model cur-view view-data]
   [:div {:class (c [:p 8] [:space-y 4])}
    [:h1 {:class (c :text-2xl [:my 2])}
@@ -233,6 +268,9 @@
        (:title v)])
     [:div {:class (c [:w 4] :border-b)}]]
    (render-view view-data)
+
+   [editor]
+   [anti.button/button {:type "primary" :on-click #(zrf/dispatch [save])} "Save"]
    ])
 
 (pages/reg-page ctx page)

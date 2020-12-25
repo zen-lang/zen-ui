@@ -11,8 +11,7 @@
 
  get-symbol
  {:zen/tags #{zenbox/rpc}
-  :params {:type zen/map
-           :keys {:name {:type zen/symbol}}}}
+  :params {}}
 
  rpc-methods
  {:zen/tags #{zenbox/rpc}
@@ -21,6 +20,10 @@
  endpoints
  {:zen/tags #{zenbox/rpc}
   :zen/desc "Return all endpoints"}
+
+ update-symbol
+ {:zen/tags #{zenbox/rpc}
+  :zen/desc "Update symbol in ns"}
 
  ;; views for models
  tag-view {:zen/tags #{zen/tag zen/schema}
