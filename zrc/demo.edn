@@ -1,4 +1,4 @@
-{import #{zenbox fhir zen-ui},
+{import #{zenbox fhir zen-ui demo.sandbox},
  index-op
  {:response {:headers {"location" "static/index.html"}, :status 302},
   :zen/tags #{zenbox/op},

@@ -1,0 +1,18 @@
+{:zen/file "/Users/niquola/zen-ui/zrc/demo/sandbox.edn",
+ ns demo.sandbox,
+ org
+ {:zen/tags #{zen/schema},
+  :type zen/map,
+  :keys {:name {:type zen/string}}},
+ org-store
+ {:table "organization",
+  :zen/tags #{zenbox/pgstore zenbox/jsonb-store},
+  :db demo/store,
+  :zen/desc "docs here...",
+  :engine zenbox/jsonb-store},
+ org-create
+ {:placeholder {:resource {:name "HS"}},
+  :zen/tags #{zenbox/rpc},
+  :operation zenbox/insert,
+  :schemas #{org},
+  :storage org-store}}
